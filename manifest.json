@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.2.1.0",
+        "changelog": "Fix IntroDB read compatibility: retry GET /segments without API key on 401/403 and normalize base URL input.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.2.1.0.zip",
+        "checksum": "ccbe5e58512cb9bd880f4fb27443c6c0",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.2.0.0",
         "changelog": "Add native Jellyfin media segment provider for on-the-fly IntroDB lookup by itemId, enabling Skip Intro for .strm episodes.",
         "targetAbi": "10.11.0.0",
