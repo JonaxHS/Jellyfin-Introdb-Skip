@@ -35,28 +35,40 @@ public class EpisodeIntroSyncService
     /// </summary>
     public async Task SyncEpisodeAsync(Episode episode, CancellationToken cancellationToken)
     {
+        _ = await GetOrFetchMarkerAsync(episode, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Gets a cached marker for an episode or fetches it from IntroDB.
+    /// </summary>
+    public async Task<CachedIntroMarker?> GetOrFetchMarkerAsync(Episode episode, CancellationToken cancellationToken)
+    {
         var config = Plugin.Instance.PluginConfiguration;
         if (!config.Enabled)
         {
-            return;
+            return null;
         }
 
-        if (!config.OverwriteExistingMarkers && _store.Get(episode.Id) is not null)
+        if (!config.OverwriteExistingMarkers)
         {
-            return;
+            var existingMarker = _store.Get(episode.Id);
+            if (existingMarker is not null)
+            {
+                return existingMarker;
+            }
         }
 
         var season = episode.ParentIndexNumber ?? 0;
         var episodeNumber = episode.IndexNumber ?? 0;
         if (season <= 0 || episodeNumber <= 0)
         {
-            return;
+            return null;
         }
 
         var imdbId = ResolveImdbId(episode);
         if (string.IsNullOrWhiteSpace(imdbId))
         {
-            return;
+            return null;
         }
 
         IntroDbSegmentsResponse? response;
@@ -69,16 +81,16 @@ public class EpisodeIntroSyncService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "IntroDB request failed for {Series} S{Season:00}E{Episode:00}", episode.SeriesName, season, episodeNumber);
-            return;
+            return null;
         }
 
         var intro = response?.Intro;
         if (intro is null || intro.Confidence < config.MinimumConfidence)
         {
-            return;
+            return null;
         }
 
-        _store.Upsert(new CachedIntroMarker
+        var marker = new CachedIntroMarker
         {
             ItemId = episode.Id,
             ImdbId = imdbId,
@@ -88,9 +100,12 @@ public class EpisodeIntroSyncService
             EndMs = intro.EndMs,
             Confidence = intro.Confidence,
             SyncedAt = DateTimeOffset.UtcNow
-        });
+        };
+
+        _store.Upsert(marker);
 
         _logger.LogDebug("Stored IntroDB marker for {Series} S{Season:00}E{Episode:00}", episode.SeriesName, season, episodeNumber);
+        return marker;
     }
 
     private static string? ResolveImdbId(Episode episode)

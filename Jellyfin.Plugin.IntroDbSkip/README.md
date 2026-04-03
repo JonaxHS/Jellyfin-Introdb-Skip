@@ -5,15 +5,16 @@ Plugin de Jellyfin para sincronizar segmentos de intro desde [IntroDB](https://i
 ## Que hace hoy
 
 - Consulta `GET /segments` de IntroDB por `imdb_id + season + episode`.
-- Sincroniza al abrir/reproducir un episodio (on-demand, sin escaneo global).
+- Resuelve segmentos en la marcha al reproducir un episodio (on-demand, sin escaneo global).
 - Guarda localmente el marcador de intro (inicio/fin) para cada episodio encontrado.
+- Publica el marcador como `Media Segment` de Jellyfin para habilitar el boton `Saltar intro`.
 - Mantiene una tarea manual de backfill: `Sync IntroDB markers`.
 - Guarda cache en el directorio de datos de Jellyfin: `introdbskip/markers.json`.
 
 ## Estado
 
-- Este MVP implementa sincronizacion y cache de marcadores.
-- Falta conectar estos marcadores al pipeline de reproduccion del cliente para ejecutar el salto automatico.
+- Este MVP implementa sincronizacion on-demand + proveedor de media segments para Intro.
+- El salto depende del cliente de Jellyfin y de que el episodio tenga metadata suficiente (`imdb/season/episode`).
 
 ## Configuracion
 

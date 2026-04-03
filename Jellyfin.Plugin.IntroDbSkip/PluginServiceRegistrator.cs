@@ -1,5 +1,6 @@
 using Jellyfin.Plugin.IntroDbSkip.Services;
 using MediaBrowser.Controller;
+using MediaBrowser.Controller.MediaSegments;
 using MediaBrowser.Controller.Plugins;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http;
@@ -18,6 +19,7 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton<IntroDbClient>();
         serviceCollection.AddSingleton<IntroMarkerStore>();
         serviceCollection.AddSingleton<EpisodeIntroSyncService>();
+        serviceCollection.AddSingleton<IMediaSegmentProvider, IntroDbMediaSegmentProvider>();
         serviceCollection.AddHostedService<PlaybackStartSyncService>();
     }
 }

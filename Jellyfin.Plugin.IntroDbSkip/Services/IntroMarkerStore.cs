@@ -67,6 +67,21 @@ public class IntroMarkerStore
         }
     }
 
+    /// <summary>
+    /// Removes a marker by item id.
+    /// </summary>
+    public void Remove(Guid itemId)
+    {
+        lock (_sync)
+        {
+            var items = LoadAllInternal();
+            if (items.Remove(itemId))
+            {
+                SaveAllInternal(items);
+            }
+        }
+    }
+
     private Dictionary<Guid, CachedIntroMarker> LoadAllInternal()
     {
         if (!File.Exists(_filePath))

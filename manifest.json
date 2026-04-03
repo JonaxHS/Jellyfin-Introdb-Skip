@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.2.0.0",
+        "changelog": "Add native Jellyfin media segment provider for on-the-fly IntroDB lookup by itemId, enabling Skip Intro for .strm episodes.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.2.0.0.zip",
+        "checksum": "e760de9b6390700f0ee816c929bee626",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.1.0.0",
         "changelog": "Add on-playback sync mode so markers are fetched when an episode starts, plus manual backfill task.",
         "targetAbi": "10.11.0.0",

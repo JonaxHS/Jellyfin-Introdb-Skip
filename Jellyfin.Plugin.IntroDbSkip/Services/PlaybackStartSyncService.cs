@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
+using MediaBrowser.Controller.MediaSegments;
 using MediaBrowser.Controller.Session;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,8 @@ namespace Jellyfin.Plugin.IntroDbSkip.Services;
 public class PlaybackStartSyncService : IHostedService
 {
     private readonly ISessionManager _sessionManager;
-    private readonly EpisodeIntroSyncService _episodeSyncService;
+    private readonly ILibraryManager _libraryManager;
+    private readonly IMediaSegmentManager _mediaSegmentManager;
     private readonly ILogger<PlaybackStartSyncService> _logger;
 
     /// <summary>
@@ -23,11 +25,13 @@ public class PlaybackStartSyncService : IHostedService
     /// </summary>
     public PlaybackStartSyncService(
         ISessionManager sessionManager,
-        EpisodeIntroSyncService episodeSyncService,
+        ILibraryManager libraryManager,
+        IMediaSegmentManager mediaSegmentManager,
         ILogger<PlaybackStartSyncService> logger)
     {
         _sessionManager = sessionManager;
-        _episodeSyncService = episodeSyncService;
+        _libraryManager = libraryManager;
+        _mediaSegmentManager = mediaSegmentManager;
         _logger = logger;
     }
 
@@ -61,11 +65,14 @@ public class PlaybackStartSyncService : IHostedService
         {
             try
             {
-                await _episodeSyncService.SyncEpisodeAsync(episode, CancellationToken.None).ConfigureAwait(false);
+                var options = _libraryManager.GetLibraryOptions(episode);
+                await _mediaSegmentManager
+                    .RunSegmentPluginProviders(episode, options, false, CancellationToken.None)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed syncing IntroDB marker on playback start for item {ItemId}", episode.Id);
+                _logger.LogWarning(ex, "Failed to refresh media segments on playback start for item {ItemId}", episode.Id);
             }
         });
     }
