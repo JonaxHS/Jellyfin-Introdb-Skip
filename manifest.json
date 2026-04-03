@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.3.2.0",
+        "changelog": "Catalog refresh hotfix: bump version so Jellyfin shows the latest Android Exo fallback release.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.3.2.0.zip",
+        "checksum": "8af95c1b3c7e0da6b039228084c08207",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.3.1.0",
         "changelog": "Android Exo hotfix: trigger intro seek directly after playback start with a short delay so it does not depend on progress updates.",
         "targetAbi": "10.11.0.0",
