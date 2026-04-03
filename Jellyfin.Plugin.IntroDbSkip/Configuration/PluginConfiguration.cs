@@ -18,6 +18,7 @@ public class PluginConfiguration : BasePluginConfiguration
         MinimumConfidence = 0.75;
         OverwriteExistingMarkers = false;
         SyncOnPlaybackStart = true;
+        AndroidExoAutoSkipFallback = true;
         Enabled = true;
     }
 
@@ -50,6 +51,11 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets a value indicating whether markers are fetched when playback starts.
     /// </summary>
     public bool SyncOnPlaybackStart { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether Android Exo clients should receive server-side intro seek fallback.
+    /// </summary>
+    public bool AndroidExoAutoSkipFallback { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether synchronization is enabled.

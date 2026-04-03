@@ -48,6 +48,14 @@
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
+                            <input id="AndroidExoAutoSkipFallback" name="AndroidExoAutoSkipFallback" type="checkbox" is="emby-checkbox" />
+                            <span>Android Exo fallback: auto-seek intro</span>
+                        </label>
+                        <div class="fieldDescription">If Android app does not show the button in time, server sends a seek to intro end when segment starts.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
                             <input id="OverwriteExistingMarkers" name="OverwriteExistingMarkers" type="checkbox" is="emby-checkbox" />
                             <span>Overwrite existing markers</span>
                         </label>
@@ -77,6 +85,7 @@
                         document.querySelector('#MinimumConfidence').value = config.MinimumConfidence || 0.75;
                         document.querySelector('#Enabled').checked = config.Enabled !== false;
                         document.querySelector('#SyncOnPlaybackStart').checked = config.SyncOnPlaybackStart !== false;
+                        document.querySelector('#AndroidExoAutoSkipFallback').checked = config.AndroidExoAutoSkipFallback !== false;
                         document.querySelector('#OverwriteExistingMarkers').checked = !!config.OverwriteExistingMarkers;
                         Dashboard.hideLoadingMsg();
                     });
@@ -92,6 +101,7 @@
                         config.MinimumConfidence = parseFloat(document.querySelector('#MinimumConfidence').value) || 0.75;
                         config.Enabled = document.querySelector('#Enabled').checked;
                         config.SyncOnPlaybackStart = document.querySelector('#SyncOnPlaybackStart').checked;
+                        config.AndroidExoAutoSkipFallback = document.querySelector('#AndroidExoAutoSkipFallback').checked;
                         config.OverwriteExistingMarkers = document.querySelector('#OverwriteExistingMarkers').checked;
 
                         ApiClient.updatePluginConfiguration(IntroDbSkipConfig.pluginUniqueId, config)
