@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>IntroDB Skip</title>
+</head>
+<body>
+    <div id="IntroDbSkipConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="IntroDbSkipConfigForm">
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="IntroDbBaseUrl">IntroDB Base URL</label>
+                        <input id="IntroDbBaseUrl" name="IntroDbBaseUrl" type="text" is="emby-input" />
+                        <div class="fieldDescription">Default: https://api.introdb.app</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="IntroDbApiKey">IntroDB API Key</label>
+                        <input id="IntroDbApiKey" name="IntroDbApiKey" type="password" is="emby-input" autocomplete="off" />
+                        <div class="fieldDescription">Optional. Used for authenticated IntroDB requests (X-API-Key).</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="SyncIntervalHours">Sync Interval (hours)</label>
+                        <input id="SyncIntervalHours" name="SyncIntervalHours" type="number" min="1" is="emby-input" />
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="MinimumConfidence">Minimum Confidence (0-1)</label>
+                        <input id="MinimumConfidence" name="MinimumConfidence" type="number" min="0" max="1" step="0.01" is="emby-input" />
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="Enabled" name="Enabled" type="checkbox" is="emby-checkbox" />
+                            <span>Enable synchronization</span>
+                        </label>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="OverwriteExistingMarkers" name="OverwriteExistingMarkers" type="checkbox" is="emby-checkbox" />
+                            <span>Overwrite existing markers</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            var IntroDbSkipConfig = {
+                pluginUniqueId: 'a6c05116-3d5b-4419-b5be-52de81f7c8d9'
+            };
+
+            document.querySelector('#IntroDbSkipConfigPage')
+                .addEventListener('pageshow', function () {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(IntroDbSkipConfig.pluginUniqueId).then(function (config) {
+                        document.querySelector('#IntroDbBaseUrl').value = config.IntroDbBaseUrl || 'https://api.introdb.app';
+                        document.querySelector('#IntroDbApiKey').value = config.IntroDbApiKey || '';
+                        document.querySelector('#SyncIntervalHours').value = config.SyncIntervalHours || 24;
+                        document.querySelector('#MinimumConfidence').value = config.MinimumConfidence || 0.75;
+                        document.querySelector('#Enabled').checked = config.Enabled !== false;
+                        document.querySelector('#OverwriteExistingMarkers').checked = !!config.OverwriteExistingMarkers;
+                        Dashboard.hideLoadingMsg();
+                    });
+                });
+
+            document.querySelector('#IntroDbSkipConfigForm')
+                .addEventListener('submit', function (e) {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(IntroDbSkipConfig.pluginUniqueId).then(function (config) {
+                        config.IntroDbBaseUrl = document.querySelector('#IntroDbBaseUrl').value;
+                        config.IntroDbApiKey = document.querySelector('#IntroDbApiKey').value;
+                        config.SyncIntervalHours = parseInt(document.querySelector('#SyncIntervalHours').value, 10) || 24;
+                        config.MinimumConfidence = parseFloat(document.querySelector('#MinimumConfidence').value) || 0.75;
+                        config.Enabled = document.querySelector('#Enabled').checked;
+                        config.OverwriteExistingMarkers = document.querySelector('#OverwriteExistingMarkers').checked;
+
+                        ApiClient.updatePluginConfiguration(IntroDbSkipConfig.pluginUniqueId, config)
+                            .then(function (result) {
+                                Dashboard.processPluginConfigurationUpdateResult(result);
+                            });
+                    });
+
+                    e.preventDefault();
+                    return false;
+                });
+        </script>
+    </div>
+</body>
+</html>
