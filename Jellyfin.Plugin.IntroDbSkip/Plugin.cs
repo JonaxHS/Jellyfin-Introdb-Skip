@@ -32,7 +32,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     public override string Name => "IntroDB Skip";
 
     /// <inheritdoc/>
-    public override string Description => "Sync intro markers from IntroDB to support skip intro workflows.";
+    public override string Description => "Sync intro markers from IntroDB API (no local media analysis) to support skip intro workflows.";
 
     /// <inheritdoc/>
     public override Guid Id => new("a6c05116-3d5b-4419-b5be-52de81f7c8d9");

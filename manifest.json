@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.3.3.0",
+        "changelog": "Android Exo hotfix: fix fallback race condition so seek is triggered inside intro window on playback progress.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.3.3.0.zip",
+        "checksum": "83ca00d0fc70a6efdd5d260c4cf88d64",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.3.2.0",
         "changelog": "Catalog refresh hotfix: bump version so Jellyfin shows the latest Android Exo fallback release.",
         "targetAbi": "10.11.0.0",

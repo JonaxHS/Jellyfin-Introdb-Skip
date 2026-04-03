@@ -24,6 +24,7 @@ public class PlaybackStartSyncService : IHostedService
     private readonly EpisodeIntroSyncService _episodeIntroSyncService;
     private readonly ILogger<PlaybackStartSyncService> _logger;
     private readonly ConcurrentDictionary<string, (long StartTicks, long EndTicks)> _pendingAndroidSkips = new();
+    private readonly ConcurrentDictionary<string, byte> _androidSeekInFlight = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PlaybackStartSyncService"/> class.
@@ -58,6 +59,7 @@ public class PlaybackStartSyncService : IHostedService
         _sessionManager.PlaybackProgress -= SessionManagerOnPlaybackProgress;
         _sessionManager.PlaybackStopped -= SessionManagerOnPlaybackStopped;
         _pendingAndroidSkips.Clear();
+        _androidSeekInFlight.Clear();
         return Task.CompletedTask;
     }
 
@@ -93,10 +95,11 @@ public class PlaybackStartSyncService : IHostedService
                         _pendingAndroidSkips[e.PlaySessionId] =
                             (marker.StartMs * TimeSpan.TicksPerMillisecond, marker.EndMs * TimeSpan.TicksPerMillisecond);
 
-                        if (!string.IsNullOrWhiteSpace(e.Session?.Id))
-                        {
-                            _ = ScheduleAndroidFallbackSeekAsync(e.Session.Id, e.PlaySessionId, marker.EndMs * TimeSpan.TicksPerMillisecond);
-                        }
+                        _logger.LogDebug(
+                            "Prepared Android Exo fallback window for playSession {PlaySessionId}: {StartMs}ms-{EndMs}ms",
+                            e.PlaySessionId,
+                            marker.StartMs,
+                            marker.EndMs);
                     }
                 }
             }
@@ -136,7 +139,10 @@ public class PlaybackStartSyncService : IHostedService
             return;
         }
 
-        _pendingAndroidSkips.TryRemove(e.PlaySessionId, out _);
+        if (!_androidSeekInFlight.TryAdd(e.PlaySessionId, 0))
+        {
+            return;
+        }
 
         _ = ScheduleAndroidFallbackSeekAsync(sessionId, e.PlaySessionId, marker.EndTicks);
     }
@@ -146,6 +152,7 @@ public class PlaybackStartSyncService : IHostedService
         if (!string.IsNullOrWhiteSpace(e.PlaySessionId))
         {
             _pendingAndroidSkips.TryRemove(e.PlaySessionId, out _);
+            _androidSeekInFlight.TryRemove(e.PlaySessionId, out _);
         }
     }
 
@@ -155,10 +162,12 @@ public class PlaybackStartSyncService : IHostedService
         {
             await Task.Delay(TimeSpan.FromMilliseconds(1500), CancellationToken.None).ConfigureAwait(false);
 
-            if (!_pendingAndroidSkips.ContainsKey(playSessionId))
+            if (!_pendingAndroidSkips.TryGetValue(playSessionId, out var pendingWindow))
             {
                 return;
             }
+
+            seekPositionTicks = pendingWindow.EndTicks;
 
             await _sessionManager.SendPlaystateCommand(
                 sessionId,
@@ -176,6 +185,10 @@ public class PlaybackStartSyncService : IHostedService
         catch (Exception ex)
         {
             _logger.LogDebug(ex, "Failed Android Exo fallback seek for playSession {PlaySessionId}", playSessionId);
+        }
+        finally
+        {
+            _androidSeekInFlight.TryRemove(playSessionId, out _);
         }
     }
 
