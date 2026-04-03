@@ -1,0 +1,20 @@
+[
+  {
+    "guid": "a6c05116-3d5b-4419-b5be-52de81f7c8d9",
+    "name": "IntroDB Skip",
+    "overview": "Sync intro markers from IntroDB to support skip intro workflows.",
+    "description": "Fetches intro segments from IntroDB and stores local marker cache for Jellyfin episodes.",
+    "owner": "JonaxHS",
+    "category": "General",
+    "versions": [
+      {
+        "version": "1.0.0.0",
+        "changelog": "Initial release with IntroDB sync task and plugin configuration UI.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.0.0.0.zip",
+        "checksum": "db8336f32c058f33869dcf7b9a314e24",
+        "timestamp": "2026-04-03T00:00:00Z"
+      }
+    ]
+  }
+]

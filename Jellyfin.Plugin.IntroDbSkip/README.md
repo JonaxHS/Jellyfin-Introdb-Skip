@@ -43,6 +43,17 @@ dotnet publish -c Release
 3. Reiniciar Jellyfin.
 4. Ejecutar la tarea programada `Sync IntroDB markers` desde Dashboard.
 
+## Instalacion por repositorio (Catalogo)
+
+Tambien puedes instalarlo agregando un repositorio en Jellyfin, sin copiar DLL manualmente.
+
+1. En Jellyfin ve a `Dashboard > Catalog > Repositories`.
+2. Agrega este URL:
+
+`https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/manifest.json`
+
+3. Guarda, vuelve al Catalogo e instala `IntroDB Skip`.
+
 ## API del plugin
 
 Endpoint admin para validar cache:
