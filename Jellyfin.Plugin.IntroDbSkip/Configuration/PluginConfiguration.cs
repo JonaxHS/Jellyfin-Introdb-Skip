@@ -17,6 +17,7 @@ public class PluginConfiguration : BasePluginConfiguration
         SyncIntervalHours = 24;
         MinimumConfidence = 0.75;
         OverwriteExistingMarkers = false;
+        SyncOnPlaybackStart = true;
         Enabled = true;
     }
 
@@ -44,6 +45,11 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets a value indicating whether the task overwrites existing local markers.
     /// </summary>
     public bool OverwriteExistingMarkers { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether markers are fetched when playback starts.
+    /// </summary>
+    public bool SyncOnPlaybackStart { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether synchronization is enabled.

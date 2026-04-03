@@ -17,5 +17,7 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton<HttpClient>();
         serviceCollection.AddSingleton<IntroDbClient>();
         serviceCollection.AddSingleton<IntroMarkerStore>();
+        serviceCollection.AddSingleton<EpisodeIntroSyncService>();
+        serviceCollection.AddHostedService<PlaybackStartSyncService>();
     }
 }

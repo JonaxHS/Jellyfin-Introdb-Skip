@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.1.0.0",
+        "changelog": "Add on-playback sync mode so markers are fetched when an episode starts, plus manual backfill task.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.1.0.0.zip",
+        "checksum": "f01f0882634707bf0e6990d7cee4488d",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.0.0.0",
         "changelog": "Initial release with IntroDB sync task and plugin configuration UI.",
         "targetAbi": "10.11.0.0",

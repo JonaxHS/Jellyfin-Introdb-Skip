@@ -40,6 +40,14 @@
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
+                            <input id="SyncOnPlaybackStart" name="SyncOnPlaybackStart" type="checkbox" is="emby-checkbox" />
+                            <span>Sync when episode playback starts</span>
+                        </label>
+                        <div class="fieldDescription">Recommended for very large or infinite libraries.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
                             <input id="OverwriteExistingMarkers" name="OverwriteExistingMarkers" type="checkbox" is="emby-checkbox" />
                             <span>Overwrite existing markers</span>
                         </label>
@@ -68,6 +76,7 @@
                         document.querySelector('#SyncIntervalHours').value = config.SyncIntervalHours || 24;
                         document.querySelector('#MinimumConfidence').value = config.MinimumConfidence || 0.75;
                         document.querySelector('#Enabled').checked = config.Enabled !== false;
+                        document.querySelector('#SyncOnPlaybackStart').checked = config.SyncOnPlaybackStart !== false;
                         document.querySelector('#OverwriteExistingMarkers').checked = !!config.OverwriteExistingMarkers;
                         Dashboard.hideLoadingMsg();
                     });
@@ -82,6 +91,7 @@
                         config.SyncIntervalHours = parseInt(document.querySelector('#SyncIntervalHours').value, 10) || 24;
                         config.MinimumConfidence = parseFloat(document.querySelector('#MinimumConfidence').value) || 0.75;
                         config.Enabled = document.querySelector('#Enabled').checked;
+                        config.SyncOnPlaybackStart = document.querySelector('#SyncOnPlaybackStart').checked;
                         config.OverwriteExistingMarkers = document.querySelector('#OverwriteExistingMarkers').checked;
 
                         ApiClient.updatePluginConfiguration(IntroDbSkipConfig.pluginUniqueId, config)

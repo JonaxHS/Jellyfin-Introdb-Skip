@@ -5,8 +5,9 @@ Plugin de Jellyfin para sincronizar segmentos de intro desde [IntroDB](https://i
 ## Que hace hoy
 
 - Consulta `GET /segments` de IntroDB por `imdb_id + season + episode`.
+- Sincroniza al abrir/reproducir un episodio (on-demand, sin escaneo global).
 - Guarda localmente el marcador de intro (inicio/fin) para cada episodio encontrado.
-- Expone una tarea programada en Jellyfin: `Sync IntroDB markers`.
+- Mantiene una tarea manual de backfill: `Sync IntroDB markers`.
 - Guarda cache en el directorio de datos de Jellyfin: `introdbskip/markers.json`.
 
 ## Estado
@@ -22,6 +23,7 @@ La configuracion del plugin (`PluginConfiguration`) incluye:
 - `SyncIntervalHours`: cada cuantas horas corre la tarea
 - `MinimumConfidence`: confianza minima aceptada (0-1)
 - `OverwriteExistingMarkers`: reservado para una fase de escritura sobre metadata local
+- `SyncOnPlaybackStart`: sincroniza al iniciar reproduccion de episodios
 - `Enabled`: activa/desactiva sincronizacion
 
 ## Build
