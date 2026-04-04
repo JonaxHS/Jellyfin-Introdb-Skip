@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.5.9.0",
+        "changelog": "Enhance fallback logging between IntroDB and TheIntroDB to diagnose why the second provider might be skipped.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.5.9.0.zip",
+        "checksum": "873acb700e05dbaf3f7d943b4d53ffd4",
+        "timestamp": "2026-04-04T00:00:00Z"
+      },
+      {
         "version": "1.5.8.0",
         "changelog": "Fix activation issues by improving series ID resolution and adding diagnostic log paths to identify why markers might be missing.",
         "targetAbi": "10.11.0.0",

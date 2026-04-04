@@ -60,7 +60,7 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider, IHasOrder
         var marker = await _episodeIntroSyncService.GetOrFetchMarkerAsync(episode, cancellationToken).ConfigureAwait(false);
         if (marker is null)
         {
-            _logger.LogInformation("No markers found in IntroDB for item {ItemId}", request.ItemId);
+            _logger.LogInformation("No markers found in any provider (IntroDB/TheIntroDB) for item {ItemId}", request.ItemId);
             return [];
         }
 

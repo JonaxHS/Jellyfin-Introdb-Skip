@@ -72,6 +72,8 @@ public class EpisodeIntroSyncService
         }
 
         var (imdbId, tmdbId) = ResolveMediaIds(episode);
+        _logger.LogDebug("Resolved IDs for {SeriesName} S{Season:00}E{Episode:00}: IMDb={ImdbId}, TMDB={TmdbId}", episode.SeriesName, season, episodeNumber, imdbId ?? "null", tmdbId?.ToString() ?? "null");
+
         (int StartMs, int EndMs)? introSegment = null;
         (int StartMs, int EndMs)? recapSegment = null;
         (int StartMs, int? EndMs)? creditsSegment = null;
@@ -80,6 +82,7 @@ public class EpisodeIntroSyncService
         {
             try
             {
+                _logger.LogDebug("Attempting IntroDB sync for {Series} S{Season:00}E{Episode:00} using IMDb {ImdbId}", episode.SeriesName, season, episodeNumber, imdbId);
                 var response = await _introDbClient
                     .GetIntroDbSegmentsAsync(config.IntroDbBaseUrl, config.IntroDbApiKey, imdbId, season, episodeNumber, cancellationToken)
                     .ConfigureAwait(false);
@@ -102,6 +105,7 @@ public class EpisodeIntroSyncService
         {
             try
             {
+                _logger.LogDebug("Attempting TheIntroDB sync for {Series} S{Season:00}E{Episode:00} using TMDB {TmdbId}", episode.SeriesName, season, episodeNumber, tmdbId);
                 var response = await _introDbClient
                     .GetTheIntroDbMediaAsync(config.TheIntroDbBaseUrl, config.TheIntroDbApiKey, tmdbId.Value, season, episodeNumber, cancellationToken)
                     .ConfigureAwait(false);
