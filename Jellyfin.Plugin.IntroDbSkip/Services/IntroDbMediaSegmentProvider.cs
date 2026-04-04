@@ -57,9 +57,10 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider
         }
 
         var segments = new List<MediaSegmentDto>();
-        TryAddSegment(segments, request.ItemId, marker.StartMs, marker.EndMs, MediaSegmentType.Intro);
-        TryAddSegment(segments, request.ItemId, marker.RecapStartMs, marker.RecapEndMs, MediaSegmentType.Recap);
-        TryAddSegment(segments, request.ItemId, marker.CreditsStartMs, marker.CreditsEndMs, MediaSegmentType.Outro);
+        var runtimeTicks = item.RunTimeTicks;
+        TryAddSegment(segments, request.ItemId, marker.StartMs, marker.EndMs, MediaSegmentType.Intro, runtimeTicks);
+        TryAddSegment(segments, request.ItemId, marker.RecapStartMs, marker.RecapEndMs, MediaSegmentType.Recap, runtimeTicks);
+        TryAddSegment(segments, request.ItemId, marker.CreditsStartMs, marker.CreditsEndMs, MediaSegmentType.Outro, runtimeTicks);
 
         if (segments.Count == 0)
         {
@@ -88,15 +89,29 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider
         Guid itemId,
         int? startMs,
         int? endMs,
-        MediaSegmentType type)
+        MediaSegmentType type,
+        long? runtimeTicks)
     {
-        if (!startMs.HasValue || !endMs.HasValue)
+        if (!startMs.HasValue)
         {
             return;
         }
 
         var startTicks = startMs.Value * TimeSpan.TicksPerMillisecond;
-        var endTicks = endMs.Value * TimeSpan.TicksPerMillisecond;
+        long endTicks;
+        if (endMs.HasValue)
+        {
+            endTicks = endMs.Value * TimeSpan.TicksPerMillisecond;
+        }
+        else if (type == MediaSegmentType.Outro && runtimeTicks.HasValue && runtimeTicks.Value > startTicks)
+        {
+            endTicks = runtimeTicks.Value;
+        }
+        else
+        {
+            return;
+        }
+
         if (endTicks <= startTicks)
         {
             return;

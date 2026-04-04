@@ -69,7 +69,7 @@ public class EpisodeIntroSyncService
         var imdbId = ResolveImdbId(episode);
         (int StartMs, int EndMs)? introSegment = null;
         (int StartMs, int EndMs)? recapSegment = null;
-        (int StartMs, int EndMs)? creditsSegment = null;
+        (int StartMs, int? EndMs)? creditsSegment = null;
 
         if (!string.IsNullOrWhiteSpace(imdbId))
         {
@@ -81,7 +81,11 @@ public class EpisodeIntroSyncService
 
                 introSegment = NormalizeIntroDbSegment(response?.Intro, config.MinimumConfidence);
                 recapSegment = NormalizeIntroDbSegment(response?.Recap, config.MinimumConfidence);
-                creditsSegment = NormalizeIntroDbSegment(response?.Outro, config.MinimumConfidence);
+                var introDbCredits = NormalizeIntroDbSegment(response?.Outro, config.MinimumConfidence);
+                if (introDbCredits is not null)
+                {
+                    creditsSegment = (introDbCredits.Value.StartMs, introDbCredits.Value.EndMs);
+                }
             }
             catch (Exception ex)
             {
@@ -100,7 +104,7 @@ public class EpisodeIntroSyncService
 
                 introSegment ??= GetBestSegment(response?.Intro);
                 recapSegment ??= GetBestSegment(response?.Recap);
-                creditsSegment ??= GetBestSegment(response?.Credits);
+                creditsSegment ??= GetBestCreditsSegment(response?.Credits);
             }
             catch (Exception ex)
             {
@@ -197,12 +201,53 @@ public class EpisodeIntroSyncService
         return normalizedSegments[0];
     }
 
+    private static (int StartMs, int? EndMs)? GetBestCreditsSegment(TheIntroDbSegmentInfo[]? segments)
+    {
+        if (segments is null || segments.Length == 0)
+        {
+            return null;
+        }
+
+        var normalizedSegments = segments
+            .Where(segment => segment is not null)
+            .Select(segment => NormalizeCreditsSegment(segment!))
+            .Where(segment => segment.HasValue)
+            .Select(segment => segment!.Value)
+            .OrderBy(segment => segment.StartMs)
+            .ToArray();
+
+        if (normalizedSegments.Length == 0)
+        {
+            return null;
+        }
+
+        return normalizedSegments[0];
+    }
+
     private static (int StartMs, int EndMs)? NormalizeSegment(TheIntroDbSegmentInfo segment)
     {
         var startMs = segment.StartMs ?? (segment.StartSec.HasValue ? (int)Math.Round(segment.StartSec.Value * 1000.0) : 0);
         var endMs = segment.EndMs ?? (segment.EndSec.HasValue ? (int)Math.Round(segment.EndSec.Value * 1000.0) : 0);
 
         if (endMs <= startMs)
+        {
+            return null;
+        }
+
+        return (startMs, endMs);
+    }
+
+    private static (int StartMs, int? EndMs)? NormalizeCreditsSegment(TheIntroDbSegmentInfo segment)
+    {
+        var startMs = segment.StartMs ?? (segment.StartSec.HasValue ? (int)Math.Round(segment.StartSec.Value * 1000.0) : 0);
+        var endMs = segment.EndMs ?? (segment.EndSec.HasValue ? (int)Math.Round(segment.EndSec.Value * 1000.0) : (int?)null);
+
+        if (startMs <= 0)
+        {
+            return null;
+        }
+
+        if (endMs.HasValue && endMs.Value <= startMs)
         {
             return null;
         }
