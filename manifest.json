@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.5.8.0",
+        "changelog": "Fix activation issues by improving series ID resolution and adding diagnostic log paths to identify why markers might be missing.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.5.8.0.zip",
+        "checksum": "9fce448d07225bd4b384a49560ab9365",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.5.7.0",
         "changelog": "Add a startup probe log so Jellyfin can prove whether the IntroDB Skip plugin assembly is actually being loaded alongside the media segment provider.",
         "targetAbi": "10.11.0.0",

@@ -72,6 +72,10 @@ public class EpisodeIntroSyncService
         }
 
         var (imdbId, tmdbId) = ResolveMediaIds(episode);
+        (int StartMs, int EndMs)? introSegment = null;
+        (int StartMs, int EndMs)? recapSegment = null;
+        (int StartMs, int? EndMs)? creditsSegment = null;
+
         if (!string.IsNullOrWhiteSpace(imdbId))
         {
             try
