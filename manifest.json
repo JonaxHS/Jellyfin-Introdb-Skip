@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.4.1.0",
+        "changelog": "Force a fresh catalog release so Jellyfin picks up the latest IntroDB/TheIntroDB fallback build.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.4.1.0.zip",
+        "checksum": "cfbf63cc5fd5f39411009df5459b1389",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.4.0.0",
         "changelog": "Add TheIntroDB fallback so the plugin can resolve intros from a second API when IntroDB has no marker.",
         "targetAbi": "10.11.0.0",
