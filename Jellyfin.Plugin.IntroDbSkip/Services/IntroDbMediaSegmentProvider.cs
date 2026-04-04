@@ -7,6 +7,7 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.MediaSegments;
+using MediaBrowser.Controller.Providers;
 using MediaBrowser.Model;
 using MediaBrowser.Model.MediaSegments;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ namespace Jellyfin.Plugin.IntroDbSkip.Services;
 /// <summary>
 /// Media segment provider that resolves Intro segments from IntroDB using episode metadata.
 /// </summary>
-public class IntroDbMediaSegmentProvider : IMediaSegmentProvider
+public class IntroDbMediaSegmentProvider : IMediaSegmentProvider, IHasOrder
 {
     private readonly ILibraryManager _libraryManager;
     private readonly EpisodeIntroSyncService _episodeIntroSyncService;
@@ -42,8 +43,13 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider
     public string Name => "IntroDB Skip";
 
     /// <inheritdoc />
+    public int Order => -100;
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<MediaSegmentDto>> GetMediaSegments(MediaSegmentGenerationRequest request, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("IntroDB Skip provider queried for item {ItemId}", request.ItemId);
+
         var item = _libraryManager.GetItemById(request.ItemId);
         if (item is not Episode episode)
         {
