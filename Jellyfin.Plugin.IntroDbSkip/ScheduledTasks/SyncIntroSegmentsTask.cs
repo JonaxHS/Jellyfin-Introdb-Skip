@@ -98,17 +98,6 @@ public class SyncIntroSegmentsTask : IScheduledTask, IConfigurableScheduledTask
     /// <inheritdoc/>
     public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()
     {
-        return
-        [
-            new TaskTriggerInfo
-            {
-                Type = TaskTriggerInfoType.StartupTrigger
-            },
-            new TaskTriggerInfo
-            {
-                Type = TaskTriggerInfoType.IntervalTrigger,
-                IntervalTicks = TimeSpan.FromHours(24).Ticks
-            }
-        ];
+        return [];
     }
 }

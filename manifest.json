@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.5.5.0",
+        "changelog": "Make the plugin work primarily on demand when playback starts or Jellyfin requests segments, instead of running the automatic backfill by default.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.5.5.0.zip",
+        "checksum": "deb3c002523bfbe78574f646ca6133e2",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.5.4.0",
         "changelog": "Speed up the automatic intro backfill by keeping the marker cache in memory and processing episodes with bounded parallelism.",
         "targetAbi": "10.11.0.0",

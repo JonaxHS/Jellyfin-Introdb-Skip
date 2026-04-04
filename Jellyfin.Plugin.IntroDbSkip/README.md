@@ -11,7 +11,7 @@ Plugin de Jellyfin para sincronizar segmentos de intro desde [IntroDB](https://i
 - Si IntroDB no devuelve marcador, consulta `GET /media` de TheIntroDB por `tmdb_id + season + episode`.
 - Sincroniza segmentos de `intro`, `recap` y `creditos` (en Jellyfin, creditos se publica como segmento `Outro`).
 - Resuelve segmentos en la marcha al reproducir un episodio (on-demand, sin escaneo global).
-- Ejecuta un backfill automatico al arrancar Jellyfin y luego cada 24 horas para mantener la cache al dia.
+- La deteccion principal es sobre la marcha: al empezar la reproduccion o cuando Jellyfin pide los segmentos consulta las APIs y cachea el resultado.
 - Guarda localmente el marcador de intro (inicio/fin) para cada episodio encontrado.
 - Publica el marcador como `Media Segment` de Jellyfin para habilitar el boton `Saltar intro`.
 - Mantiene una tarea manual de backfill: `Sync IntroDB markers`.
