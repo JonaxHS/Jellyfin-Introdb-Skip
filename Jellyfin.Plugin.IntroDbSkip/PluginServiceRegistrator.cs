@@ -21,5 +21,6 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton<EpisodeIntroSyncService>();
         serviceCollection.AddSingleton<IMediaSegmentProvider, IntroDbMediaSegmentProvider>();
         serviceCollection.AddHostedService<PlaybackStartSyncService>();
+        serviceCollection.AddHostedService<PluginStartupProbeService>();
     }
 }

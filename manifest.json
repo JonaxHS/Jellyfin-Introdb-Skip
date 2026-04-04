@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.5.7.0",
+        "changelog": "Add a startup probe log so Jellyfin can prove whether the IntroDB Skip plugin assembly is actually being loaded alongside the media segment provider.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.5.7.0.zip",
+        "checksum": "1a18680bae760b768861d8eba33d655b",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.5.6.0",
         "changelog": "Give the IntroDB media segment provider explicit priority and a visible activation log so Jellyfin can select it ahead of competing providers like Gelato.",
         "targetAbi": "10.11.0.0",
