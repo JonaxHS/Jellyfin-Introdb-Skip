@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.5.1.0",
+        "changelog": "Fix TheIntroDB credits compatibility when end_ms is null (open-ended credits to end of runtime).",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.5.1.0.zip",
+        "checksum": "7070850b5a2b8c959bbfb263da35ff7b",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.5.0.0",
         "changelog": "Add recap and credits segments from IntroDB and TheIntroDB (credits mapped to Jellyfin Outro segment type).",
         "targetAbi": "10.11.0.0",
