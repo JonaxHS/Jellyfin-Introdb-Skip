@@ -137,6 +137,7 @@ public class IntroDbClient
         }
 
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        request.Headers.TryAddWithoutValidation("User-Agent", "Jellyfin.Plugin.IntroDbSkip/1.6.2.0");
 
         return await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }

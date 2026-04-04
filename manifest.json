@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.6.2.0",
+        "changelog": "Add User-Agent header to API requests to resolve 403 Forbidden errors from TheIntroDB.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.6.2.0.zip",
+        "checksum": "0b792db4dec7c5bc0b065a74904779e3",
+        "timestamp": "2026-04-04T00:00:00Z"
+      },
+      {
         "version": "1.6.1.0",
         "changelog": "Add raw response logging to TheIntroDB client to diagnose deserialization issues in the server environment.",
         "targetAbi": "10.11.0.0",
