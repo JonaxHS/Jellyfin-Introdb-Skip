@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.5.4.0",
+        "changelog": "Speed up the automatic intro backfill by keeping the marker cache in memory and processing episodes with bounded parallelism.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.5.4.0.zip",
+        "checksum": "7c6a1cbb092817c16f2adfe5c539c154",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.5.3.0",
         "changelog": "Make intro backfill run automatically on startup and every 24 hours so STRM libraries do not depend on manual task runs.",
         "targetAbi": "10.11.0.0",

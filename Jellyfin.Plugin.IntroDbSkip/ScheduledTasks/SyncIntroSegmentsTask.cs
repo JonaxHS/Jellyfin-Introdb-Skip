@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Data.Enums;
@@ -72,27 +73,26 @@ public class SyncIntroSegmentsTask : IScheduledTask, IConfigurableScheduledTask
             Recursive = true
         });
 
-        var index = 0;
-        var total = Math.Max(episodes.Count, 1);
+        var episodeItems = episodes.OfType<Episode>().ToArray();
+        var total = Math.Max(episodeItems.Length, 1);
 
-        foreach (var item in episodes)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (item is not Episode episode)
+        var completed = 0;
+        await Parallel.ForEachAsync(
+            episodeItems,
+            new ParallelOptions
             {
-                index++;
-                progress.Report(index * 100.0 / total);
-                continue;
-            }
+                MaxDegreeOfParallelism = 4,
+                CancellationToken = cancellationToken
+            },
+            async (episode, token) =>
+            {
+                await _episodeSyncService.SyncEpisodeAsync(episode, token).ConfigureAwait(false);
 
-            await _episodeSyncService.SyncEpisodeAsync(episode, cancellationToken).ConfigureAwait(false);
+                var finished = Interlocked.Increment(ref completed);
+                progress.Report(finished * 100.0 / total);
+            }).ConfigureAwait(false);
 
-            index++;
-            progress.Report(index * 100.0 / total);
-        }
-
-        _logger.LogInformation("IntroDB sync finished. Scanned {Count} item(s).", episodes.Count);
+        _logger.LogInformation("IntroDB sync finished. Scanned {Count} episode(s).", episodeItems.Length);
     }
 
     /// <inheritdoc/>

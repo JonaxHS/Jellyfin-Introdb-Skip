@@ -20,6 +20,7 @@ public class IntroMarkerStore
 
     private readonly string _filePath;
     private readonly object _sync = new();
+    private Dictionary<Guid, CachedIntroMarker> _markers;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IntroMarkerStore"/> class.
@@ -29,6 +30,7 @@ public class IntroMarkerStore
         var dataDir = Path.Combine(applicationPaths.DataPath, "introdbskip");
         Directory.CreateDirectory(dataDir);
         _filePath = Path.Combine(dataDir, "markers.json");
+        _markers = LoadAllInternal();
     }
 
     /// <summary>
@@ -38,9 +40,8 @@ public class IntroMarkerStore
     {
         lock (_sync)
         {
-            var items = LoadAllInternal();
-            items[marker.ItemId] = marker;
-            SaveAllInternal(items);
+            _markers[marker.ItemId] = marker;
+            SaveAllInternal(_markers);
         }
     }
 
@@ -51,8 +52,7 @@ public class IntroMarkerStore
     {
         lock (_sync)
         {
-            var items = LoadAllInternal();
-            return items.GetValueOrDefault(itemId);
+            return _markers.GetValueOrDefault(itemId);
         }
     }
 
@@ -63,7 +63,7 @@ public class IntroMarkerStore
     {
         lock (_sync)
         {
-            return LoadAllInternal().Values.ToArray();
+            return _markers.Values.ToArray();
         }
     }
 
@@ -74,10 +74,9 @@ public class IntroMarkerStore
     {
         lock (_sync)
         {
-            var items = LoadAllInternal();
-            if (items.Remove(itemId))
+            if (_markers.Remove(itemId))
             {
-                SaveAllInternal(items);
+                SaveAllInternal(_markers);
             }
         }
     }
