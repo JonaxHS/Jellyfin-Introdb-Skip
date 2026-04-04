@@ -242,7 +242,7 @@ public class EpisodeIntroSyncService
         var startMs = segment.StartMs ?? (segment.StartSec.HasValue ? (int)Math.Round(segment.StartSec.Value * 1000.0) : 0);
         var endMs = segment.EndMs ?? (segment.EndSec.HasValue ? (int)Math.Round(segment.EndSec.Value * 1000.0) : (int?)null);
 
-        if (startMs <= 0)
+        if (startMs < 0)
         {
             return null;
         }
