@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.6.0.0",
+        "changelog": "Escalate fallback logs to Information level so they are visible by default in Jellyfin console.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.6.0.0.zip",
+        "checksum": "451b8b140e0fc2158baaccdf5b998f6b",
+        "timestamp": "2026-04-04T00:00:00Z"
+      },
+      {
         "version": "1.5.9.0",
         "changelog": "Enhance fallback logging between IntroDB and TheIntroDB to diagnose why the second provider might be skipped.",
         "targetAbi": "10.11.0.0",
