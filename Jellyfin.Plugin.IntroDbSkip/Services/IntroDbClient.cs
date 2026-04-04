@@ -109,12 +109,14 @@ public class IntroDbClient
         {
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogDebug("TheIntroDB request failed with status code {StatusCode} for {Url}", (int)response.StatusCode, url);
+                _logger.LogInformation("TheIntroDB request failed with status code {StatusCode} for {Url}", (int)response.StatusCode, url);
                 return null;
             }
 
-            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-            return (TheIntroDbMediaResponse?)await JsonSerializer.DeserializeAsync(stream, typeof(TheIntroDbMediaResponse), JsonOptions, cancellationToken).ConfigureAwait(false);
+            var json = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            _logger.LogInformation("TheIntroDB response for {Url}: {JsonSnippet}", url, json.Length > 200 ? json.Substring(0, 200) + "..." : json);
+
+            return JsonSerializer.Deserialize<TheIntroDbMediaResponse>(json, JsonOptions);
         }
     }
 

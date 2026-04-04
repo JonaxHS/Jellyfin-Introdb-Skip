@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.6.1.0",
+        "changelog": "Add raw response logging to TheIntroDB client to diagnose deserialization issues in the server environment.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.6.1.0.zip",
+        "checksum": "7e51329a032680fb829a52062d8a15ad",
+        "timestamp": "2026-04-04T00:00:00Z"
+      },
+      {
         "version": "1.6.0.0",
         "changelog": "Escalate fallback logs to Information level so they are visible by default in Jellyfin console.",
         "targetAbi": "10.11.0.0",
