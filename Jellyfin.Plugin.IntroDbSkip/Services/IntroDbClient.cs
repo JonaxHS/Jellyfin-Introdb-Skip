@@ -32,7 +32,7 @@ public class IntroDbClient
     /// <summary>
     /// Fetches episode segments from IntroDB.
     /// </summary>
-    public async Task<IntroDbSegmentsResponse?> GetSegmentsAsync(
+    public async Task<IntroDbSegmentsResponse?> GetIntroDbSegmentsAsync(
         string baseUrl,
         string? apiKey,
         string imdbId,
@@ -45,7 +45,7 @@ public class IntroDbClient
             CultureInfo.InvariantCulture,
             $"{safeBaseUrl}/segments?imdb_id={Uri.EscapeDataString(imdbId)}&season={season}&episode={episode}");
 
-        var response = await SendRequestAsync(url, apiKey, cancellationToken).ConfigureAwait(false);
+        var response = await SendRequestAsync(url, apiKey, AuthHeaderMode.XApiKey, cancellationToken).ConfigureAwait(false);
 
         // Read endpoints are public. If configured API key is invalid, retry without it.
         if ((response?.StatusCode == System.Net.HttpStatusCode.Unauthorized || response?.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -53,7 +53,7 @@ public class IntroDbClient
         {
             _logger.LogWarning("IntroDB rejected configured API key for read endpoint. Retrying without API key.");
             response.Dispose();
-            response = await SendRequestAsync(url, null, cancellationToken).ConfigureAwait(false);
+            response = await SendRequestAsync(url, null, AuthHeaderMode.XApiKey, cancellationToken).ConfigureAwait(false);
         }
 
         if (response is null)
@@ -70,16 +70,68 @@ public class IntroDbClient
             }
 
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-            return await JsonSerializer.DeserializeAsync<IntroDbSegmentsResponse>(stream, JsonOptions, cancellationToken).ConfigureAwait(false);
+            return (IntroDbSegmentsResponse?)await JsonSerializer.DeserializeAsync(stream, typeof(IntroDbSegmentsResponse), JsonOptions, cancellationToken).ConfigureAwait(false);
         }
     }
 
-    private async Task<HttpResponseMessage?> SendRequestAsync(string url, string? apiKey, CancellationToken cancellationToken)
+    /// <summary>
+    /// Fetches episode segments from TheIntroDB.
+    /// </summary>
+    public async Task<TheIntroDbMediaResponse?> GetTheIntroDbMediaAsync(
+        string baseUrl,
+        string? apiKey,
+        int tmdbId,
+        int? season,
+        int? episode,
+        CancellationToken cancellationToken)
+    {
+        var safeBaseUrl = NormalizeBaseUrl(baseUrl, defaultUrl: "https://api.theintrodb.org/v2");
+        var url = season.HasValue && episode.HasValue
+            ? $"{safeBaseUrl}/media?tmdb_id={tmdbId}&season={season}&episode={episode}"
+            : $"{safeBaseUrl}/media?tmdb_id={tmdbId}";
+
+        var response = await SendRequestAsync(url, apiKey, AuthHeaderMode.Bearer, cancellationToken).ConfigureAwait(false);
+
+        if ((response?.StatusCode == System.Net.HttpStatusCode.Unauthorized || response?.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            && !string.IsNullOrWhiteSpace(apiKey))
+        {
+            _logger.LogWarning("TheIntroDB rejected configured API key for read endpoint. Retrying without API key.");
+            response.Dispose();
+            response = await SendRequestAsync(url, null, AuthHeaderMode.Bearer, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (response is null)
+        {
+            return null;
+        }
+
+        using (response)
+        {
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogDebug("TheIntroDB request failed with status code {StatusCode} for {Url}", (int)response.StatusCode, url);
+                return null;
+            }
+
+            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            return (TheIntroDbMediaResponse?)await JsonSerializer.DeserializeAsync(stream, typeof(TheIntroDbMediaResponse), JsonOptions, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task<HttpResponseMessage?> SendRequestAsync(string url, string? apiKey, AuthHeaderMode authHeaderMode, CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
-            request.Headers.TryAddWithoutValidation("X-API-Key", apiKey.Trim());
+            var token = apiKey.Trim();
+            if (authHeaderMode == AuthHeaderMode.XApiKey)
+            {
+                request.Headers.TryAddWithoutValidation("X-API-Key", token);
+            }
+            else
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
         }
 
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -87,12 +139,12 @@ public class IntroDbClient
         return await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }
 
-    private static string NormalizeBaseUrl(string baseUrl)
+    private static string NormalizeBaseUrl(string baseUrl, string? defaultUrl = null)
     {
         var url = baseUrl.Trim().TrimEnd('/');
         if (string.IsNullOrWhiteSpace(url))
         {
-            return "https://api.introdb.app";
+            return defaultUrl ?? "https://api.introdb.app";
         }
 
         if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
@@ -106,6 +158,17 @@ public class IntroDbClient
             return "https://api.introdb.app";
         }
 
+        if (url.Contains("theintrodb.org/docs", StringComparison.OrdinalIgnoreCase))
+        {
+            return defaultUrl ?? "https://api.theintrodb.org/v2";
+        }
+
         return url;
+    }
+
+    private enum AuthHeaderMode
+    {
+        XApiKey,
+        Bearer
     }
 }

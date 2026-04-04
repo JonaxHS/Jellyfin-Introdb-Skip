@@ -14,6 +14,8 @@ public class PluginConfiguration : BasePluginConfiguration
     {
         IntroDbBaseUrl = "https://api.introdb.app";
         IntroDbApiKey = string.Empty;
+        TheIntroDbBaseUrl = "https://api.theintrodb.org/v2";
+        TheIntroDbApiKey = string.Empty;
         SyncIntervalHours = 24;
         MinimumConfidence = 0.75;
         OverwriteExistingMarkers = false;
@@ -31,6 +33,16 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets the IntroDB API key.
     /// </summary>
     public string IntroDbApiKey { get; set; }
+
+    /// <summary>
+    /// Gets or sets the TheIntroDB API base url.
+    /// </summary>
+    public string TheIntroDbBaseUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the TheIntroDB API key.
+    /// </summary>
+    public string TheIntroDbApiKey { get; set; }
 
     /// <summary>
     /// Gets or sets how often to run synchronization.

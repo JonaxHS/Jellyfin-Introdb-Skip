@@ -1,13 +1,14 @@
 # Jellyfin.Plugin.IntroDbSkip
 
-Plugin de Jellyfin para sincronizar segmentos de intro desde [IntroDB](https://introdb.app/docs/api).
+Plugin de Jellyfin para sincronizar segmentos de intro desde [IntroDB](https://introdb.app/docs/api) y [TheIntroDB](https://theintrodb.org/docs).
 
 > Nota para bibliotecas `strm` (por ejemplo, Gelato): este plugin no analiza archivos locales ni usa ffmpeg.
-> Todo el flujo depende de la API de IntroDB y de metadatos validos (`imdb_id`, `season`, `episode`).
+> Todo el flujo depende de las APIs de IntroDB / TheIntroDB y de metadatos validos (`imdb_id`, `tmdb_id`, `season`, `episode`).
 
 ## Que hace hoy
 
 - Consulta `GET /segments` de IntroDB por `imdb_id + season + episode`.
+- Si IntroDB no devuelve marcador, consulta `GET /media` de TheIntroDB por `tmdb_id + season + episode`.
 - Resuelve segmentos en la marcha al reproducir un episodio (on-demand, sin escaneo global).
 - Guarda localmente el marcador de intro (inicio/fin) para cada episodio encontrado.
 - Publica el marcador como `Media Segment` de Jellyfin para habilitar el boton `Saltar intro`.
@@ -18,7 +19,7 @@ Plugin de Jellyfin para sincronizar segmentos de intro desde [IntroDB](https://i
 
 - No se realiza analisis de video/audio sobre el archivo.
 - No se requiere ffmpeg para detectar intros.
-- Si faltan metadatos (`imdb_id`, temporada o episodio), no se puede consultar IntroDB para ese item.
+- Si faltan metadatos (`imdb_id`, `tmdb_id`, temporada o episodio), puede no haber forma de consultar ninguna de las dos bases.
 
 ## Estado
 

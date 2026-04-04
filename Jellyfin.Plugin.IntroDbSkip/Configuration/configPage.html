@@ -10,7 +10,7 @@
             <div class="content-primary">
                 <form id="IntroDbSkipConfigForm">
                     <div class="fieldDescription" style="margin-bottom:16px;">
-                        Modo STRM/API: este plugin no analiza archivos locales. Solo usa IntroDB + metadatos (IMDB, temporada, episodio).
+                        Modo STRM/API: este plugin no analiza archivos locales. Consulta IntroDB primero y luego TheIntroDB, usando solo metadatos (IMDB/TMDB, temporada, episodio).
                     </div>
 
                     <div class="inputContainer">
@@ -23,6 +23,18 @@
                         <label class="inputLabel inputLabelUnfocused" for="IntroDbApiKey">IntroDB API Key</label>
                         <input id="IntroDbApiKey" name="IntroDbApiKey" type="password" is="emby-input" autocomplete="off" />
                         <div class="fieldDescription">Optional. Used for authenticated IntroDB requests (X-API-Key).</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="TheIntroDbBaseUrl">TheIntroDB Base URL</label>
+                        <input id="TheIntroDbBaseUrl" name="TheIntroDbBaseUrl" type="text" is="emby-input" />
+                        <div class="fieldDescription">Default: https://api.theintrodb.org/v2</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="TheIntroDbApiKey">TheIntroDB API Key</label>
+                        <input id="TheIntroDbApiKey" name="TheIntroDbApiKey" type="password" is="emby-input" autocomplete="off" />
+                        <div class="fieldDescription">Optional. Used if the second API requires a key.</div>
                     </div>
 
                     <div class="inputContainer">
@@ -85,6 +97,8 @@
                     ApiClient.getPluginConfiguration(IntroDbSkipConfig.pluginUniqueId).then(function (config) {
                         document.querySelector('#IntroDbBaseUrl').value = config.IntroDbBaseUrl || 'https://api.introdb.app';
                         document.querySelector('#IntroDbApiKey').value = config.IntroDbApiKey || '';
+                        document.querySelector('#TheIntroDbBaseUrl').value = config.TheIntroDbBaseUrl || 'https://api.theintrodb.org/v2';
+                        document.querySelector('#TheIntroDbApiKey').value = config.TheIntroDbApiKey || '';
                         document.querySelector('#SyncIntervalHours').value = config.SyncIntervalHours || 24;
                         document.querySelector('#MinimumConfidence').value = config.MinimumConfidence || 0.75;
                         document.querySelector('#Enabled').checked = config.Enabled !== false;
@@ -101,6 +115,8 @@
                     ApiClient.getPluginConfiguration(IntroDbSkipConfig.pluginUniqueId).then(function (config) {
                         config.IntroDbBaseUrl = document.querySelector('#IntroDbBaseUrl').value;
                         config.IntroDbApiKey = document.querySelector('#IntroDbApiKey').value;
+                        config.TheIntroDbBaseUrl = document.querySelector('#TheIntroDbBaseUrl').value;
+                        config.TheIntroDbApiKey = document.querySelector('#TheIntroDbApiKey').value;
                         config.SyncIntervalHours = parseInt(document.querySelector('#SyncIntervalHours').value, 10) || 24;
                         config.MinimumConfidence = parseFloat(document.querySelector('#MinimumConfidence').value) || 0.75;
                         config.Enabled = document.querySelector('#Enabled').checked;

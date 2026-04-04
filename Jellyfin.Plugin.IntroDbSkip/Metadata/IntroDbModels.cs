@@ -51,6 +51,48 @@ public sealed class IntroDbSegmentsResponse
 }
 
 /// <summary>
+/// Segment payload returned by TheIntroDB.
+/// </summary>
+public sealed class TheIntroDbSegmentInfo
+{
+    [JsonPropertyName("start_ms")]
+    public int? StartMs { get; set; }
+
+    [JsonPropertyName("end_ms")]
+    public int? EndMs { get; set; }
+
+    [JsonPropertyName("start_sec")]
+    public double? StartSec { get; set; }
+
+    [JsonPropertyName("end_sec")]
+    public double? EndSec { get; set; }
+}
+
+/// <summary>
+/// TheIntroDB response for GET /media.
+/// </summary>
+public sealed class TheIntroDbMediaResponse
+{
+    [JsonPropertyName("tmdb_id")]
+    public int? TmdbId { get; set; }
+
+    [JsonPropertyName("type")]
+    public string? Type { get; set; }
+
+    [JsonPropertyName("intro")]
+    public TheIntroDbSegmentInfo[]? Intro { get; set; }
+
+    [JsonPropertyName("recap")]
+    public TheIntroDbSegmentInfo[]? Recap { get; set; }
+
+    [JsonPropertyName("credits")]
+    public TheIntroDbSegmentInfo[]? Credits { get; set; }
+
+    [JsonPropertyName("preview")]
+    public TheIntroDbSegmentInfo[]? Preview { get; set; }
+}
+
+/// <summary>
 /// Cached marker entry mapped to a Jellyfin item.
 /// </summary>
 public sealed class CachedIntroMarker

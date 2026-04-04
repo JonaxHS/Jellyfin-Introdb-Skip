@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.4.0.0",
+        "changelog": "Add TheIntroDB fallback so the plugin can resolve intros from a second API when IntroDB has no marker.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.4.0.0.zip",
+        "checksum": "d369bc9f520f417abf58523fa376d32b",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.3.3.0",
         "changelog": "Android Exo hotfix: fix fallback race condition so seek is triggered inside intro window on playback progress.",
         "targetAbi": "10.11.0.0",
