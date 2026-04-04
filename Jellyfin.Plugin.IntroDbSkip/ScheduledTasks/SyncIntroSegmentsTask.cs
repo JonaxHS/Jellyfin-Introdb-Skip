@@ -13,9 +13,9 @@ using Microsoft.Extensions.Logging;
 namespace Jellyfin.Plugin.IntroDbSkip.ScheduledTasks;
 
 /// <summary>
-/// Periodically syncs intro markers from IntroDB.
+/// Backfills intro markers from the configured intro sources.
 /// </summary>
-public class SyncIntroSegmentsTask : IScheduledTask
+public class SyncIntroSegmentsTask : IScheduledTask, IConfigurableScheduledTask
 {
     private readonly ILibraryManager _libraryManager;
     private readonly EpisodeIntroSyncService _episodeSyncService;
@@ -41,10 +41,19 @@ public class SyncIntroSegmentsTask : IScheduledTask
     public string Key => "IntroDbSkipSyncTask";
 
     /// <inheritdoc/>
-    public string Description => "Manual backfill task: scans all episodes and fetches IntroDB markers.";
+    public string Description => "Backfills intro markers for all episodes from IntroDB and TheIntroDB.";
 
     /// <inheritdoc/>
     public string Category => "Metadata";
+
+    /// <inheritdoc/>
+    public bool IsHidden => false;
+
+    /// <inheritdoc/>
+    public bool IsEnabled => true;
+
+    /// <inheritdoc/>
+    public bool IsLogged => true;
 
     /// <inheritdoc/>
     public async Task ExecuteAsync(IProgress<double> progress, CancellationToken cancellationToken)
@@ -89,6 +98,17 @@ public class SyncIntroSegmentsTask : IScheduledTask
     /// <inheritdoc/>
     public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()
     {
-        return [];
+        return
+        [
+            new TaskTriggerInfo
+            {
+                Type = TaskTriggerInfoType.StartupTrigger
+            },
+            new TaskTriggerInfo
+            {
+                Type = TaskTriggerInfoType.IntervalTrigger,
+                IntervalTicks = TimeSpan.FromHours(24).Ticks
+            }
+        ];
     }
 }

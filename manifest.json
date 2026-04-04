@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.5.3.0",
+        "changelog": "Make intro backfill run automatically on startup and every 24 hours so STRM libraries do not depend on manual task runs.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.5.3.0.zip",
+        "checksum": "c53c38eb62dd15d27d14daa37aa639ca",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.5.2.0",
         "changelog": "Handle null start values in TheIntroDB intro and credits segments, treating them as the beginning or end of the media window.",
         "targetAbi": "10.11.0.0",
