@@ -48,17 +48,19 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider, IHasOrder
     /// <inheritdoc />
     public async Task<IReadOnlyList<MediaSegmentDto>> GetMediaSegments(MediaSegmentGenerationRequest request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("IntroDB Skip provider queried for item {ItemId}", request.ItemId);
-
         var item = _libraryManager.GetItemById(request.ItemId);
         if (item is not Episode episode)
         {
+             _logger.LogDebug("IntroDB Skip provider skipped non-episode item {ItemId}", request.ItemId);
             return [];
         }
+
+        _logger.LogInformation("IntroDB Skip provider querying markers for {SeriesName} S{Season:00}E{Episode:00} ({ItemId})", episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber, request.ItemId);
 
         var marker = await _episodeIntroSyncService.GetOrFetchMarkerAsync(episode, cancellationToken).ConfigureAwait(false);
         if (marker is null)
         {
+            _logger.LogInformation("No markers found in IntroDB for item {ItemId}", request.ItemId);
             return [];
         }
 
@@ -70,10 +72,11 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider, IHasOrder
 
         if (segments.Count == 0)
         {
-            _logger.LogDebug("No valid segments available for item {ItemId}", request.ItemId);
+            _logger.LogInformation("No valid segments could be created from marker for item {ItemId}", request.ItemId);
             return [];
         }
 
+        _logger.LogInformation("Returning {Count} segments for item {ItemId}", segments.Count, request.ItemId);
         return segments;
     }
 

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Jellyfin.Plugin.IntroDbSkip.Metadata;
 using MediaBrowser.Controller.Entities.TV;
+using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -16,6 +17,7 @@ public class EpisodeIntroSyncService
 {
     private readonly IntroDbClient _introDbClient;
     private readonly IntroMarkerStore _store;
+    private readonly ILibraryManager _libraryManager;
     private readonly ILogger<EpisodeIntroSyncService> _logger;
 
     /// <summary>
@@ -24,10 +26,12 @@ public class EpisodeIntroSyncService
     public EpisodeIntroSyncService(
         IntroDbClient introDbClient,
         IntroMarkerStore store,
+        ILibraryManager libraryManager,
         ILogger<EpisodeIntroSyncService> logger)
     {
         _introDbClient = introDbClient;
         _store = store;
+        _libraryManager = libraryManager;
         _logger = logger;
     }
 
@@ -63,14 +67,11 @@ public class EpisodeIntroSyncService
         var episodeNumber = episode.IndexNumber ?? 0;
         if (season <= 0 || episodeNumber <= 0)
         {
+            _logger.LogDebug("Episode {SeriesName} S{Season:00}E{Episode:00} has invalid numbers. Skipping marker sync.", episode.SeriesName, season, episodeNumber);
             return null;
         }
 
-        var imdbId = ResolveImdbId(episode);
-        (int StartMs, int EndMs)? introSegment = null;
-        (int StartMs, int EndMs)? recapSegment = null;
-        (int StartMs, int? EndMs)? creditsSegment = null;
-
+        var (imdbId, tmdbId) = ResolveMediaIds(episode);
         if (!string.IsNullOrWhiteSpace(imdbId))
         {
             try
@@ -93,7 +94,6 @@ public class EpisodeIntroSyncService
             }
         }
 
-        var tmdbId = ResolveTmdbId(episode);
         if (tmdbId is not null && (introSegment is null || recapSegment is null || creditsSegment is null))
         {
             try
@@ -144,38 +144,29 @@ public class EpisodeIntroSyncService
         return marker;
     }
 
-    private static string? ResolveImdbId(Episode episode)
+    private (string? ImdbId, int? TmdbId) ResolveMediaIds(Episode episode)
     {
         var episodeImdb = episode.GetProviderId(MetadataProvider.Imdb);
-        if (!string.IsNullOrWhiteSpace(episodeImdb))
+        var episodeTmdbStr = episode.GetProviderId(MetadataProvider.Tmdb);
+        int.TryParse(episodeTmdbStr, out var episodeTmdbParsed);
+        int? episodeTmdb = episodeTmdbParsed > 0 ? episodeTmdbParsed : null;
+
+        if (!string.IsNullOrWhiteSpace(episodeImdb) && episodeTmdb.HasValue)
         {
-            return episodeImdb;
+            return (episodeImdb, episodeTmdb);
         }
 
-        var seriesImdb = episode.Series?.GetProviderId(MetadataProvider.Imdb);
-        if (!string.IsNullOrWhiteSpace(seriesImdb))
+        var series = episode.Series ?? _libraryManager.GetItemById(episode.SeriesId) as Series;
+        if (series is null)
         {
-            return seriesImdb;
+            _logger.LogWarning("Could not resolve series for episode {EpisodeId}", episode.Id);
+            return (episodeImdb, episodeTmdb);
         }
 
-        return null;
-    }
+        var imdbId = !string.IsNullOrWhiteSpace(episodeImdb) ? episodeImdb : series.GetProviderId(MetadataProvider.Imdb);
+        var tmdbId = episodeTmdb ?? (int.TryParse(series.GetProviderId(MetadataProvider.Tmdb), out var sTmdb) ? sTmdb : (int?)null);
 
-    private static int? ResolveTmdbId(Episode episode)
-    {
-        var episodeTmdb = episode.GetProviderId(MetadataProvider.Tmdb);
-        if (int.TryParse(episodeTmdb, out var episodeTmdbId))
-        {
-            return episodeTmdbId;
-        }
-
-        var seriesTmdb = episode.Series?.GetProviderId(MetadataProvider.Tmdb);
-        if (int.TryParse(seriesTmdb, out var seriesTmdbId))
-        {
-            return seriesTmdbId;
-        }
-
-        return null;
+        return (imdbId, tmdbId);
     }
 
     private static (int StartMs, int EndMs)? GetBestSegment(TheIntroDbSegmentInfo[]? segments)

@@ -67,19 +67,24 @@ public class PlaybackStartSyncService : IHostedService
     {
         if (!Plugin.Instance.PluginConfiguration.SyncOnPlaybackStart)
         {
+            _logger.LogDebug("SyncOnPlaybackStart is disabled. Skipping marker refresh.");
             return;
         }
 
         if (e.Item is not Episode episode)
         {
+            _logger.LogDebug("Playback started for non-episode item {ItemName}. Skipping marker sync.", e.Item?.Name);
             return;
         }
+
+        _logger.LogInformation("Playback started for {SeriesName} S{Season:00}E{Episode:00}. Triggering marker refresh.", episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
 
         _ = Task.Run(async () =>
         {
             try
             {
                 var options = _libraryManager.GetLibraryOptions(episode);
+                _logger.LogDebug("Running segment plugin providers for item {ItemId}", episode.Id);
                 await _mediaSegmentManager
                     .RunSegmentPluginProviders(episode, options, false, CancellationToken.None)
                     .ConfigureAwait(false);
