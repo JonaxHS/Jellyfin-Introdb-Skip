@@ -56,25 +56,18 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider
             return [];
         }
 
-        var startTicks = marker.StartMs * TimeSpan.TicksPerMillisecond;
-        var endTicks = marker.EndMs * TimeSpan.TicksPerMillisecond;
-        if (endTicks <= startTicks)
+        var segments = new List<MediaSegmentDto>();
+        TryAddSegment(segments, request.ItemId, marker.StartMs, marker.EndMs, MediaSegmentType.Intro);
+        TryAddSegment(segments, request.ItemId, marker.RecapStartMs, marker.RecapEndMs, MediaSegmentType.Recap);
+        TryAddSegment(segments, request.ItemId, marker.CreditsStartMs, marker.CreditsEndMs, MediaSegmentType.Outro);
+
+        if (segments.Count == 0)
         {
-            _logger.LogDebug("Skipping invalid IntroDB segment for item {ItemId}: start={StartMs}ms end={EndMs}ms", request.ItemId, marker.StartMs, marker.EndMs);
+            _logger.LogDebug("No valid segments available for item {ItemId}", request.ItemId);
             return [];
         }
 
-        return
-        [
-            new MediaSegmentDto
-            {
-                Id = Guid.NewGuid(),
-                ItemId = request.ItemId,
-                StartTicks = startTicks,
-                EndTicks = endTicks,
-                Type = MediaSegmentType.Intro
-            }
-        ];
+        return segments;
     }
 
     /// <inheritdoc />
@@ -88,5 +81,34 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider
     {
         _markerStore.Remove(itemId);
         return Task.CompletedTask;
+    }
+
+    private static void TryAddSegment(
+        ICollection<MediaSegmentDto> segments,
+        Guid itemId,
+        int? startMs,
+        int? endMs,
+        MediaSegmentType type)
+    {
+        if (!startMs.HasValue || !endMs.HasValue)
+        {
+            return;
+        }
+
+        var startTicks = startMs.Value * TimeSpan.TicksPerMillisecond;
+        var endTicks = endMs.Value * TimeSpan.TicksPerMillisecond;
+        if (endTicks <= startTicks)
+        {
+            return;
+        }
+
+        segments.Add(new MediaSegmentDto
+        {
+            Id = Guid.NewGuid(),
+            ItemId = itemId,
+            StartTicks = startTicks,
+            EndTicks = endTicks,
+            Type = type
+        });
     }
 }

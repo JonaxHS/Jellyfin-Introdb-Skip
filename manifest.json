@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.5.0.0",
+        "changelog": "Add recap and credits segments from IntroDB and TheIntroDB (credits mapped to Jellyfin Outro segment type).",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.5.0.0.zip",
+        "checksum": "5c21596dcef279966a64c5fb07aea223",
+        "timestamp": "2026-04-03T00:00:00Z"
+      },
+      {
         "version": "1.4.1.0",
         "changelog": "Force a fresh catalog release so Jellyfin picks up the latest IntroDB/TheIntroDB fallback build.",
         "targetAbi": "10.11.0.0",

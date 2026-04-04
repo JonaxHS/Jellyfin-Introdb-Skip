@@ -109,6 +109,14 @@ public sealed class CachedIntroMarker
 
     public int EndMs { get; set; }
 
+    public int? RecapStartMs { get; set; }
+
+    public int? RecapEndMs { get; set; }
+
+    public int? CreditsStartMs { get; set; }
+
+    public int? CreditsEndMs { get; set; }
+
     public double Confidence { get; set; }
 
     public DateTimeOffset SyncedAt { get; set; }

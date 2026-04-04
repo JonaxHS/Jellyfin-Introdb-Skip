@@ -67,6 +67,10 @@ public class EpisodeIntroSyncService
         }
 
         var imdbId = ResolveImdbId(episode);
+        (int StartMs, int EndMs)? introSegment = null;
+        (int StartMs, int EndMs)? recapSegment = null;
+        (int StartMs, int EndMs)? creditsSegment = null;
+
         if (!string.IsNullOrWhiteSpace(imdbId))
         {
             try
@@ -75,25 +79,9 @@ public class EpisodeIntroSyncService
                     .GetIntroDbSegmentsAsync(config.IntroDbBaseUrl, config.IntroDbApiKey, imdbId, season, episodeNumber, cancellationToken)
                     .ConfigureAwait(false);
 
-                var intro = response?.Intro;
-                if (intro is not null && intro.Confidence >= config.MinimumConfidence)
-                {
-                    var marker = new CachedIntroMarker
-                    {
-                        ItemId = episode.Id,
-                        ImdbId = imdbId,
-                        Season = season,
-                        Episode = episodeNumber,
-                        StartMs = intro.StartMs,
-                        EndMs = intro.EndMs,
-                        Confidence = intro.Confidence,
-                        SyncedAt = DateTimeOffset.UtcNow
-                    };
-
-                    _store.Upsert(marker);
-                    _logger.LogDebug("Stored IntroDB marker for {Series} S{Season:00}E{Episode:00}", episode.SeriesName, season, episodeNumber);
-                    return marker;
-                }
+                introSegment = NormalizeIntroDbSegment(response?.Intro, config.MinimumConfidence);
+                recapSegment = NormalizeIntroDbSegment(response?.Recap, config.MinimumConfidence);
+                creditsSegment = NormalizeIntroDbSegment(response?.Outro, config.MinimumConfidence);
             }
             catch (Exception ex)
             {
@@ -102,44 +90,54 @@ public class EpisodeIntroSyncService
         }
 
         var tmdbId = ResolveTmdbId(episode);
-        if (tmdbId is null)
+        if (tmdbId is not null && (introSegment is null || recapSegment is null || creditsSegment is null))
         {
-            return null;
-        }
-
-        try
-        {
-            var response = await _introDbClient
-                .GetTheIntroDbMediaAsync(config.TheIntroDbBaseUrl, config.TheIntroDbApiKey, tmdbId.Value, season, episodeNumber, cancellationToken)
-                .ConfigureAwait(false);
-
-            var intro = GetBestSegment(response?.Intro);
-            if (intro is null)
+            try
             {
-                return null;
+                var response = await _introDbClient
+                    .GetTheIntroDbMediaAsync(config.TheIntroDbBaseUrl, config.TheIntroDbApiKey, tmdbId.Value, season, episodeNumber, cancellationToken)
+                    .ConfigureAwait(false);
+
+                introSegment ??= GetBestSegment(response?.Intro);
+                recapSegment ??= GetBestSegment(response?.Recap);
+                creditsSegment ??= GetBestSegment(response?.Credits);
             }
-
-            var marker = new CachedIntroMarker
+            catch (Exception ex)
             {
-                ItemId = episode.Id,
-                ImdbId = imdbId ?? string.Empty,
-                Season = season,
-                Episode = episodeNumber,
-                StartMs = intro.Value.StartMs,
-                EndMs = intro.Value.EndMs,
-                Confidence = 1.0,
-                SyncedAt = DateTimeOffset.UtcNow
-            };
-
-            _store.Upsert(marker);
-            _logger.LogDebug("Stored TheIntroDB marker for {Series} S{Season:00}E{Episode:00}", episode.SeriesName, season, episodeNumber);
-            return marker;
+                _logger.LogWarning(ex, "TheIntroDB request failed for {Series} S{Season:00}E{Episode:00}", episode.SeriesName, season, episodeNumber);
+            }
         }
-        catch (Exception ex)
+
+        if (introSegment is null && recapSegment is null && creditsSegment is null)
         {
-            _logger.LogWarning(ex, "TheIntroDB request failed for {Series} S{Season:00}E{Episode:00}", episode.SeriesName, season, episodeNumber);
             return null;
         }
+
+        var marker = new CachedIntroMarker
+        {
+            ItemId = episode.Id,
+            ImdbId = imdbId ?? string.Empty,
+            Season = season,
+            Episode = episodeNumber,
+            StartMs = introSegment?.StartMs ?? 0,
+            EndMs = introSegment?.EndMs ?? 0,
+            RecapStartMs = recapSegment?.StartMs,
+            RecapEndMs = recapSegment?.EndMs,
+            CreditsStartMs = creditsSegment?.StartMs,
+            CreditsEndMs = creditsSegment?.EndMs,
+            Confidence = introSegment is not null ? 1.0 : 0,
+            SyncedAt = DateTimeOffset.UtcNow
+        };
+
+        _store.Upsert(marker);
+        _logger.LogDebug("Stored marker(s) for {Series} S{Season:00}E{Episode:00} intro={HasIntro} recap={HasRecap} credits={HasCredits}",
+            episode.SeriesName,
+            season,
+            episodeNumber,
+            introSegment is not null,
+            recapSegment is not null,
+            creditsSegment is not null);
+        return marker;
     }
 
     private static string? ResolveImdbId(Episode episode)
@@ -203,6 +201,28 @@ public class EpisodeIntroSyncService
     {
         var startMs = segment.StartMs ?? (segment.StartSec.HasValue ? (int)Math.Round(segment.StartSec.Value * 1000.0) : 0);
         var endMs = segment.EndMs ?? (segment.EndSec.HasValue ? (int)Math.Round(segment.EndSec.Value * 1000.0) : 0);
+
+        if (endMs <= startMs)
+        {
+            return null;
+        }
+
+        return (startMs, endMs);
+    }
+
+    private static (int StartMs, int EndMs)? NormalizeIntroDbSegment(SegmentInfo? segment, double minimumConfidence)
+    {
+        if (segment is null || segment.Confidence < minimumConfidence)
+        {
+            return null;
+        }
+
+        var startMs = segment.StartMs > 0
+            ? segment.StartMs
+            : (int)Math.Round(segment.StartSec * 1000.0);
+        var endMs = segment.EndMs > 0
+            ? segment.EndMs
+            : (int)Math.Round(segment.EndSec * 1000.0);
 
         if (endMs <= startMs)
         {
