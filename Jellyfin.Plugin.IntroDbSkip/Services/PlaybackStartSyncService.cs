@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.IntroDbSkip.Metadata;
+using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.MediaSegments;
@@ -111,6 +115,44 @@ public class PlaybackStartSyncService : IHostedService
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to refresh media segments on playback start for item {ItemId}", episode.Id);
+            }
+        });
+
+        PreFetchNextEpisode(episode);
+    }
+
+    private void PreFetchNextEpisode(Episode currentEpisode)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var seriesId = currentEpisode.SeriesId;
+                if (seriesId == Guid.Empty) return;
+
+                var nextEpisode = _libraryManager.GetItemList(new InternalItemsQuery
+                {
+                    ParentId = seriesId,
+                    IncludeItemTypes = new[] { BaseItemKind.Episode },
+                    IsVirtualItem = false
+                })
+                .OfType<Episode>()
+                .Where(e => (e.ParentIndexNumber > currentEpisode.ParentIndexNumber) ||
+                           (e.ParentIndexNumber == currentEpisode.ParentIndexNumber && e.IndexNumber > currentEpisode.IndexNumber))
+                .OrderBy(e => e.ParentIndexNumber)
+                .ThenBy(e => e.IndexNumber)
+                .FirstOrDefault();
+
+                if (nextEpisode != null)
+                {
+                    _logger.LogInformation("Pre-fetching markers for next episode: {SeriesName} S{Season:00}E{Episode:00}",
+                        nextEpisode.SeriesName, nextEpisode.ParentIndexNumber, nextEpisode.IndexNumber);
+                    await _episodeIntroSyncService.SyncEpisodeAsync(nextEpisode, CancellationToken.None).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to pre-fetch next episode for {SeriesName}", currentEpisode.SeriesName);
             }
         });
     }

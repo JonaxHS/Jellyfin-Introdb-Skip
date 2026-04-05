@@ -8,13 +8,14 @@
     "category": "General",
     "versions": [
       {
-        "version": "2.0.1.0",
-        "changelog": "V2.0.1 - Fixed IMDb ID resolution (Sync now uses Series ID instead of episode ID).",
+        "version": "2.1.0.0",
+        "changelog": "V2.1.0 - Added Next Episode Pre-fetching. Markers for the next chapter are now fetched in the background when the current one starts.",
         "targetAbi": "10.0.0.0",
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "4dedcf1c42d970d45d0e4853071819de",
-        "timestamp": "2026-04-05T14:40:00Z"
+        "checksum": "124e12aa3c0bb1410d52d03f4a99be88",
+        "timestamp": "2026-04-05T14:45:00Z"
       }
     ]
   }
 ]
+扫
