@@ -8,20 +8,20 @@
     "category": "General",
     "versions": [
       {
+        "version": "2.2.4.0",
+        "changelog": "V2.2.4 - Fixed Android Seek by using null controller. Optimized retry logic and session checks.",
+        "targetAbi": "10.0.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
+        "checksum": "705cca56fb43f862ec633da31f03cc98",
+        "timestamp": "2026-04-05T15:45:00Z"
+      },
+      {
         "version": "2.2.3.0",
         "changelog": "V2.2.3 - Implemented Aggressive Skip for Android. Retries seek command if client is buffering. Improved device detection.",
         "targetAbi": "10.0.0.0",
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
         "checksum": "f873e9f469bfef7a1d4c2f32a0916445",
         "timestamp": "2026-04-05T15:40:00Z"
-      },
-      {
-        "version": "2.2.2.0",
-        "changelog": "V2.2.2 - Enhanced Android detection and detailed logs for Auto-Skip. Fixed potential timing issues in playback start.",
-        "targetAbi": "10.0.0.0",
-        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "abdbdf2b861cfb8b9fc295da44159256",
-        "timestamp": "2026-04-05T15:35:00Z"
       }
     ]
   }

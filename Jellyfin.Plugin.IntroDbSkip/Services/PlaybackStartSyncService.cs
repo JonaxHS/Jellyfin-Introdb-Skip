@@ -253,11 +253,12 @@ public class PlaybackStartSyncService : IHostedService
                     return;
                 }
 
-                _logger.LogInformation("Attempt {Num} to Seek Android session {SessionId} to {Target}ms (Current: {Current}ms)", 
-                    i + 1, sessionId, TimeSpan.FromTicks(pendingWindow.EndTicks).TotalMilliseconds, TimeSpan.FromTicks(currentPos).TotalMilliseconds);
+                _logger.LogInformation("Attempt {Num} to FORCE Seek Android session {SessionId} to {Target}ms", 
+                    i + 1, sessionId, TimeSpan.FromTicks(pendingWindow.EndTicks).TotalMilliseconds);
 
+                // Using PlaystateCommand.Seek with null controller to bypass permission/state blocks
                 await _sessionManager.SendPlaystateCommand(
-                    sessionId,
+                    null, // System command
                     sessionId,
                     new PlaystateRequest
                     {
