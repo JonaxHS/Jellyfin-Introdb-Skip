@@ -170,37 +170,42 @@ public class PlaybackStartSyncService : IHostedService
 
     private void SessionManagerOnPlaybackProgress(object? sender, PlaybackProgressEventArgs e)
     {
-        if (!Plugin.Instance.PluginConfiguration.AndroidExoAutoSkipFallback || !IsAndroidClient(e) || string.IsNullOrWhiteSpace(e.PlaySessionId))
+        if (!Plugin.Instance.PluginConfiguration.AndroidExoAutoSkipFallback) return;
+
+        bool isAndroid = IsAndroidClient(e);
+        if (!isAndroid) return;
+
+        if (string.IsNullOrWhiteSpace(e.PlaySessionId))
         {
             return;
         }
 
         if (!_pendingAndroidSkips.TryGetValue(e.PlaySessionId, out var marker))
         {
+            // If not prepared yet, we don't try to sync here to avoid blocking progress handling
             return;
         }
 
         var positionTicks = e.PlaybackPositionTicks ?? e.Session?.PlayState?.PositionTicks;
-        if (!positionTicks.HasValue)
-        {
-            return;
-        }
+        if (!positionTicks.HasValue) return;
 
+        // Only skip if we are INSIDE the intro window
         if (positionTicks.Value < marker.StartTicks || positionTicks.Value >= marker.EndTicks)
         {
             return;
         }
 
         var sessionId = e.Session?.Id;
-        if (string.IsNullOrWhiteSpace(sessionId))
-        {
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(sessionId)) return;
 
         if (!_androidSeekInFlight.TryAdd(e.PlaySessionId, 0))
         {
             return;
         }
+
+        _logger.LogInformation("Android Exo detected in intro window ({Pos}ms). Scheduling fallback seek to {Target}ms.", 
+            TimeSpan.FromTicks(positionTicks.Value).TotalMilliseconds, 
+            TimeSpan.FromTicks(marker.EndTicks).TotalMilliseconds);
 
         _ = ScheduleAndroidFallbackSeekAsync(sessionId, e.PlaySessionId, marker.EndTicks);
     }
@@ -218,14 +223,20 @@ public class PlaybackStartSyncService : IHostedService
     {
         try
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(1500), CancellationToken.None).ConfigureAwait(false);
+            // Small delay to let the client settle
+            await Task.Delay(TimeSpan.FromMilliseconds(1500)).ConfigureAwait(false);
 
             if (!_pendingAndroidSkips.TryGetValue(playSessionId, out var pendingWindow))
             {
+                _logger.LogDebug("Android fallback seek cancelled: playSession {PlaySessionId} no longer pending.", playSessionId);
                 return;
             }
 
+            // Always seek to the end of the window
             seekPositionTicks = pendingWindow.EndTicks;
+
+            _logger.LogInformation("Sending Seek command to Android session {SessionId} at position {Target}ms", 
+                sessionId, TimeSpan.FromTicks(seekPositionTicks).TotalMilliseconds);
 
             await _sessionManager.SendPlaystateCommand(
                 sessionId,
@@ -238,11 +249,11 @@ public class PlaybackStartSyncService : IHostedService
                 CancellationToken.None).ConfigureAwait(false);
 
             _pendingAndroidSkips.TryRemove(playSessionId, out _);
-            _logger.LogDebug("Applied Android Exo fallback seek for playSession {PlaySessionId}", playSessionId);
+            _logger.LogInformation("Successfully applied Android Exo fallback seek for {PlaySessionId}", playSessionId);
         }
         catch (Exception ex)
         {
-            _logger.LogDebug(ex, "Failed Android Exo fallback seek for playSession {PlaySessionId}", playSessionId);
+            _logger.LogError(ex, "Failed to apply Android Exo fallback seek for {PlaySessionId}", playSessionId);
         }
         finally
         {
@@ -250,10 +261,18 @@ public class PlaybackStartSyncService : IHostedService
         }
     }
 
-    private static bool IsAndroidClient(PlaybackProgressEventArgs e)
+    private bool IsAndroidClient(PlaybackProgressEventArgs e)
     {
         var clientName = e.ClientName ?? e.Session?.Client;
-        return !string.IsNullOrWhiteSpace(clientName)
-            && clientName.Contains("android", StringComparison.OrdinalIgnoreCase);
+        var deviceName = e.Session?.DeviceName;
+        
+        bool isAndroid = (!string.IsNullOrWhiteSpace(clientName) && clientName.Contains("android", StringComparison.OrdinalIgnoreCase))
+                      || (!string.IsNullOrWhiteSpace(deviceName) && deviceName.Contains("android", StringComparison.OrdinalIgnoreCase));
+
+        if (isAndroid)
+        {
+            _logger.LogDebug("Identified Android client: Client={Client}, Device={Device}", clientName, deviceName);
+        }
+        return isAndroid;
     }
 }

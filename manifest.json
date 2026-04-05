@@ -8,20 +8,20 @@
     "category": "General",
     "versions": [
       {
+        "version": "2.2.2.0",
+        "changelog": "V2.2.2 - Enhanced Android detection and detailed logs for Auto-Skip. Fixed potential timing issues in playback start.",
+        "targetAbi": "10.0.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
+        "checksum": "abdbdf2b861cfb8b9fc295da44159256",
+        "timestamp": "2026-04-05T15:35:00Z"
+      },
+      {
         "version": "2.2.1.0",
         "changelog": "V2.2.1 - Fixed marker leakage, next-episode pre-fetching, and IMDb resolution. Consolidating stability for Android Auto-Skip.",
         "targetAbi": "10.0.0.0",
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
         "checksum": "dd4fa5f80884ec2aa5ced8eba1bb2fa2",
         "timestamp": "2026-04-05T15:30:00Z"
-      },
-      {
-        "version": "2.2.0.0",
-        "changelog": "V2.2.0 - Added Chapter Injection. Intros now appear as chapters in the timeline for Android support. Added toggle in settings.",
-        "targetAbi": "10.0.0.0",
-        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "4bfc614114a3d2d91e6bc23eeea8820f",
-        "timestamp": "2026-04-05T15:20:00Z"
       }
     ]
   }
