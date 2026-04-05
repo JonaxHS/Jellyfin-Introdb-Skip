@@ -1,16 +1,16 @@
 {
-  "guid": "7f8a8b8c-9d9e-4f0f-a1b1-c1d1e1f1a1b1",
+  "guid": "a6c05116-3d5b-4419-b5be-52de81f7c8d9",
   "name": "IntroDB Skip",
   "description": "Automatically skip TV show intros using IntroDB and IntroHater.",
   "owner": "JonaxHS",
   "category": "Media Library",
   "versions": [
     {
-      "version": "1.0.0.0",
-      "changelog": "Initial release of V2 - Simplified with IntroDB and IntroHater support.",
+      "version": "2.0.0.0",
+      "changelog": "V2 Release - New providers, fixed GUID and versioning.",
       "targetAbi": "10.9.0.0",
-      "sourceUrl": "https://github.com/JonaxHS/Jellyfin-Introdb-Skip/releases/download/v1.0.0.0/Jellyfin.Plugin.IntroDbSkip.zip",
-      "checksum": "73bd6f5cf3c1db9a8017c1d28b20b9651c295899a5cad742840105083a4a5f7f"
+      "sourceUrl": "https://github.com/JonaxHS/Jellyfin-Introdb-Skip/releases/download/v2.0.0.0/Jellyfin.Plugin.IntroDbSkip.zip",
+      "checksum": "e8f847621c2b3f20799d3b5a421174ed320cf69fe63f0959ecbaaa48112dbcc9"
     }
   ]
 }
