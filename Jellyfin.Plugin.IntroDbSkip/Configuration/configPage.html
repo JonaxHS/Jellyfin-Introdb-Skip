@@ -71,13 +71,6 @@
                         </label>
                     </div>
 
-                    <div class="checkboxContainer checkboxContainer-withDescription">
-                        <label class="emby-checkbox-label">
-                            <input id="InjectChapters" name="InjectChapters" type="checkbox" is="emby-checkbox" />
-                            <span>Inyectar marcadores como Capítulos</span>
-                        </label>
-                        <div class="fieldDescription">Recomendado para Android. Crea capítulos virtuales llamados "Intro" y "Start Episode" para saltar visualmente.</div>
-                    </div>
 
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block emby-button">
@@ -106,7 +99,6 @@
                         document.querySelector('#SyncOnPlaybackStart').checked = config.SyncOnPlaybackStart !== false;
                         document.querySelector('#AndroidExoAutoSkipFallback').checked = config.AndroidExoAutoSkipFallback !== false;
                         document.querySelector('#OverwriteExistingMarkers').checked = !!config.OverwriteExistingMarkers;
-                        document.querySelector('#InjectChapters').checked = !!config.InjectChapters;
                         Dashboard.hideLoadingMsg();
                     });
                 });
@@ -124,7 +116,6 @@
                         config.SyncOnPlaybackStart = document.querySelector('#SyncOnPlaybackStart').checked;
                         config.AndroidExoAutoSkipFallback = document.querySelector('#AndroidExoAutoSkipFallback').checked;
                         config.OverwriteExistingMarkers = document.querySelector('#OverwriteExistingMarkers').checked;
-                        config.InjectChapters = document.querySelector('#InjectChapters').checked;
 
                         ApiClient.updatePluginConfiguration(IntroDbSkipConfig.pluginUniqueId, config)
                             .then(function (result) {

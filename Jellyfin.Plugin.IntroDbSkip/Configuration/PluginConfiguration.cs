@@ -21,15 +21,9 @@ public class PluginConfiguration : BasePluginConfiguration
         OverwriteExistingMarkers = false;
         SyncOnPlaybackStart = true;
         AndroidExoAutoSkipFallback = true;
-        InjectChapters = false;
         Enabled = true;
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether markers should be injected as chapters.
-    /// Helpful for Android app which doesn't show the skip intro button natively.
-    /// </summary>
-    public bool InjectChapters { get; set; }
 
     /// <summary>
     /// Gets or sets the IntroDB API base url.

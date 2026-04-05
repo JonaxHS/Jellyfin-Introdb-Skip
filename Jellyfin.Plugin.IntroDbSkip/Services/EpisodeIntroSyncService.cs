@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Jellyfin.Plugin.IntroDbSkip.Metadata;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
-using MediaBrowser.Controller.Chapters;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Library;
 using Microsoft.Extensions.Logging;
@@ -21,7 +20,6 @@ public class EpisodeIntroSyncService
     private readonly IntroDbClient _introDbClient;
     private readonly IntroMarkerStore _store;
     private readonly ILibraryManager _libraryManager;
-    private readonly IChapterManager _chapterManager;
     private readonly ILogger<EpisodeIntroSyncService> _logger;
 
     /// <summary>
@@ -31,72 +29,20 @@ public class EpisodeIntroSyncService
         IntroDbClient introDbClient,
         IntroMarkerStore store,
         ILibraryManager libraryManager,
-        IChapterManager chapterManager,
         ILogger<EpisodeIntroSyncService> logger)
     {
         _introDbClient = introDbClient;
         _store = store;
         _libraryManager = libraryManager;
-        _chapterManager = chapterManager;
         _logger = logger;
     }
 
     /// <summary>
-    /// Fetches and stores intro marker for one episode, optionally injecting chapters.
+    /// Fetches and stores intro marker for one episode.
     /// </summary>
     public async Task SyncEpisodeAsync(Episode episode, CancellationToken cancellationToken)
     {
-        var marker = await GetOrFetchMarkerAsync(episode, cancellationToken).ConfigureAwait(false);
-        if (marker != null && Plugin.Instance.PluginConfiguration.InjectChapters)
-        {
-            InjectChapters(episode, marker);
-        }
-    }
-
-    private void InjectChapters(Episode episode, CachedIntroMarker marker)
-    {
-        try
-        {
-            var chapters = _chapterManager.GetChapters(episode.Id).ToList();
-            
-            // Remove existing intro-related chapters to avoid duplicates
-            int removedCount = chapters.RemoveAll(c => 
-                c.Name.Equals("Intro", StringComparison.OrdinalIgnoreCase) || 
-                c.Name.Equals("Introduction", StringComparison.OrdinalIgnoreCase) || 
-                c.Name.Equals("Start Episode", StringComparison.OrdinalIgnoreCase));
-
-            bool added = false;
-            if (marker.StartMs > 0)
-            {
-                chapters.Add(new ChapterInfo
-                {
-                    Name = "Intro",
-                    StartPositionTicks = marker.StartMs * TimeSpan.TicksPerMillisecond
-                });
-                added = true;
-            }
-
-            if (marker.EndMs > marker.StartMs)
-            {
-                chapters.Add(new ChapterInfo
-                {
-                    Name = "Start Episode",
-                    StartPositionTicks = marker.EndMs * TimeSpan.TicksPerMillisecond
-                });
-                added = true;
-            }
-
-            if (added || removedCount > 0)
-            {
-                _chapterManager.SaveChapters(episode, chapters.OrderBy(c => c.StartPositionTicks).ToList());
-                _logger.LogInformation("Injected Intro chapters via ChapterManager into {SeriesName} S{Season:00}E{Episode:00}.", 
-                    episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error injecting chapters via ChapterManager for episode {ItemId}", episode.Id);
-        }
+        _ = await GetOrFetchMarkerAsync(episode, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

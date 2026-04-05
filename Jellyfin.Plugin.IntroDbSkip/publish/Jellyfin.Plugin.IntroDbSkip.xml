@@ -29,12 +29,6 @@
             Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration"/> class.
             </summary>
         </member>
-        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.InjectChapters">
-            <summary>
-            Gets or sets a value indicating whether markers should be injected as chapters.
-            Helpful for Android app which doesn't show the skip intro button natively.
-            </summary>
-        </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.IntroDbBaseUrl">
             <summary>
             Gets or sets the IntroDB API base url.
@@ -182,14 +176,14 @@
             Synchronizes intro markers for a single episode.
             </summary>
         </member>
-        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService.#ctor(Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient,Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore,MediaBrowser.Controller.Library.ILibraryManager,MediaBrowser.Controller.Chapters.IChapterManager,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService})">
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService.#ctor(Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient,Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore,MediaBrowser.Controller.Library.ILibraryManager,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService})">
             <summary>
             Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService"/> class.
             </summary>
         </member>
         <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService.SyncEpisodeAsync(MediaBrowser.Controller.Entities.TV.Episode,System.Threading.CancellationToken)">
             <summary>
-            Fetches and stores intro marker for one episode, optionally injecting chapters.
+            Fetches and stores intro marker for one episode.
             </summary>
         </member>
         <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService.GetOrFetchMarkerAsync(MediaBrowser.Controller.Entities.TV.Episode,System.Threading.CancellationToken)">
