@@ -2,11 +2,19 @@
   {
     "guid": "a6c05116-3d5b-4419-b5be-52de81f7c8d9",
     "name": "IntroDB Skip",
-    "description": "Automatically skip TV show intros using IntroDB and IntroHater.",
-    "overview": "Sync intro markers from IntroDB and IntroHater APIs to support skip intro workflows.",
+    "description": "Sincroniza marcadores de intro desde IntroHater e IntroDB (sin análisis local pesado) para habilitar el salto de intros.",
+    "overview": "Sincroniza marcadores desde APIs externas para habilitar el botón de saltar intro de forma ligera y eficiente.",
     "owner": "JonaxHS",
     "category": "General",
     "versions": [
+      {
+        "version": "2.3.0.0",
+        "changelog": "V2.3.0 - Versión final en ESPAÑOL. Limpieza de código no utilizado. Salto agresivo corregido para Android.",
+        "targetAbi": "10.0.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
+        "checksum": "f8380843433fb891b66af275542b69e6",
+        "timestamp": "2026-04-05T16:00:00Z"
+      },
       {
         "version": "2.2.4.0",
         "changelog": "V2.2.4 - Fixed Android Seek by using null controller. Optimized retry logic and session checks.",
@@ -14,14 +22,6 @@
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
         "checksum": "705cca56fb43f862ec633da31f03cc98",
         "timestamp": "2026-04-05T15:45:00Z"
-      },
-      {
-        "version": "2.2.3.0",
-        "changelog": "V2.2.3 - Implemented Aggressive Skip for Android. Retries seek command if client is buffering. Improved device detection.",
-        "targetAbi": "10.0.0.0",
-        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "f873e9f469bfef7a1d4c2f32a0916445",
-        "timestamp": "2026-04-05T15:40:00Z"
       }
     ]
   }

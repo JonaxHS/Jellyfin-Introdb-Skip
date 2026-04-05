@@ -47,11 +47,11 @@ public class IntroDbClient
 
         var response = await SendRequestAsync(url, apiKey, cancellationToken).ConfigureAwait(false);
 
-        // Read endpoints are public. If configured API key is invalid, retry without it.
+        // Los puntos de lectura son públicos. Si la clave API es inválida, reintentar sin ella.
         if ((response?.StatusCode == System.Net.HttpStatusCode.Unauthorized || response?.StatusCode == System.Net.HttpStatusCode.Forbidden)
             && !string.IsNullOrWhiteSpace(apiKey))
         {
-            _logger.LogWarning("IntroDB rejected configured API key for read endpoint. Retrying without API key.");
+            _logger.LogWarning("IntroDB rechazó la clave API configurada. Reintentando sin clave.");
             response.Dispose();
             response = await SendRequestAsync(url, null, cancellationToken).ConfigureAwait(false);
         }
@@ -65,7 +65,7 @@ public class IntroDbClient
         {
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogDebug("IntroDB request failed with status code {StatusCode} for {Url}", (int)response.StatusCode, url);
+                _logger.LogDebug("La solicitud a IntroDB falló con código {StatusCode} para {Url}", (int)response.StatusCode, url);
                 return null;
             }
 
@@ -98,7 +98,7 @@ public class IntroDbClient
         {
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("IntroHater request failed with status code {StatusCode} for {Url}", (int)response.StatusCode, url);
+                _logger.LogInformation("La solicitud a IntroHater falló con código {StatusCode} para {Url}", (int)response.StatusCode, url);
                 return null;
             }
 

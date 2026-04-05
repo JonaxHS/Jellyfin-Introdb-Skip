@@ -74,7 +74,15 @@ public class EpisodeIntroSyncService
         }
 
         var (imdbId, tmdbId) = ResolveMediaIds(episode);
-        _logger.LogInformation("Resolved IDs for {SeriesName} S{Season:00}E{Episode:00}: IMDb={ImdbId}, TMDB={TmdbId}", episode.SeriesName, season, episodeNumber, imdbId ?? "null", tmdbId?.ToString() ?? "null");
+        if (string.IsNullOrWhiteSpace(imdbId))
+        {
+            _logger.LogWarning("No se encontró IMDb ID para {SeriesName} S{Season:00}E{Episode:00}. Imposible buscar intros.", 
+                episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
+            return null;
+        }
+
+        _logger.LogInformation("Buscando intros para {SeriesName} S{Season:00}E{Episode:00} (IMDb: {ImdbId})", 
+            episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber, imdbId);
 
         (int StartMs, int EndMs)? introSegment = null;
         (int StartMs, int EndMs)? recapSegment = null;
@@ -95,6 +103,12 @@ public class EpisodeIntroSyncService
                 if (introDbCredits is not null)
                 {
                     creditsSegment = (introDbCredits.Value.StartMs, introDbCredits.Value.EndMs);
+                }
+                
+                if (response != null && response.Intro != null)
+                {
+                    _logger.LogInformation("IntroDB encontró un marcador para {SeriesName} S{Season:00}E{Episode:00}", 
+                        episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
                 }
             }
             catch (Exception ex)
@@ -126,6 +140,12 @@ public class EpisodeIntroSyncService
                     {
                         creditsSegment ??= (haterCredits.Value.StartMs, haterCredits.Value.EndMs);
                     }
+                    
+                    if (intro != null)
+                    {
+                        _logger.LogInformation("IntroHater encontró un marcador para {SeriesName} S{Season:00}E{Episode:00}", 
+                            episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
+                    }
                 }
             }
             catch (Exception ex)
@@ -136,6 +156,8 @@ public class EpisodeIntroSyncService
 
         if (introSegment is null && recapSegment is null && creditsSegment is null)
         {
+            _logger.LogInformation("No se encontraron intros en ninguna fuente para {SeriesName} S{Season:00}E{Episode:00}", 
+                episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
             return null;
         }
 

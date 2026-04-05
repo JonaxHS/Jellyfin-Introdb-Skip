@@ -1,78 +1,27 @@
-# Jellyfin.Plugin.IntroDbSkip
+# Jellyfin IntroDB Skip Plugin (v2.3.0.0)
 
-Plugin de Jellyfin para sincronizar segmentos de intro desde [IntroDB](https://introdb.app/docs/api) y [TheIntroDB](https://theintrodb.org/docs).
+Este plugin para Jellyfin permite sincronizar marcadores de intro desde **IntroHater** e **IntroDB** sin necesidad de realizar un análisis pesado de los archivos multimedia locales. Es ideal para archivos `.strm` o bibliotecas en la nube.
 
-> Nota para bibliotecas `strm` (por ejemplo, Gelato): este plugin no analiza archivos locales ni usa ffmpeg.
-> Todo el flujo depende de las APIs de IntroDB / TheIntroDB y de metadatos validos (`imdb_id`, `tmdb_id`, `season`, `episode`).
+## Características
 
-## Que hace hoy
+- **Sin análisis local**: Utiliza únicamente metadatos (IMDb ID) para buscar los tiempos de intro y créditos en bases de datos comunitarias.
+- **Doble Fuente**: Prioriza **IntroHater** (más fiable) y usa **IntroDB** como respaldo.
+- **Salto Automático (Android)**: Fuerza el salto de intro desde el servidor para clientes Android que no muestran el botón nativo de Jellyfin.
+- **Pre-sincronización**: Busca los marcadores del siguiente episodio automáticamente al empezar a ver un capítulo.
+- **Totalmente en Español**: Interfaz y registros localizados.
 
-- Consulta `GET /segments` de IntroDB por `imdb_id + season + episode`.
-- Si IntroDB no devuelve marcador, consulta `GET /media` de TheIntroDB por `tmdb_id + season + episode`.
-- Sincroniza segmentos de `intro`, `recap` y `creditos` (en Jellyfin, creditos se publica como segmento `Outro`).
-- Resuelve segmentos en la marcha al reproducir un episodio (on-demand, sin escaneo global).
-- La deteccion principal es sobre la marcha: al empezar la reproduccion o cuando Jellyfin pide los segmentos consulta las APIs y cachea el resultado.
-- Guarda localmente el marcador de intro (inicio/fin) para cada episodio encontrado.
-- Publica el marcador como `Media Segment` de Jellyfin para habilitar el boton `Saltar intro`.
-- Mantiene una tarea manual de backfill: `Sync IntroDB markers`.
-- Guarda cache en el directorio de datos de Jellyfin: `introdbskip/markers.json`.
+## Configuración
 
-## Importante para STRM
+1. Instala el plugin desde el repositorio.
+2. Ve a la configuración del plugin en Jellyfin.
+3. Asegúrate de que las URLs de IntroHater (`https://introhater.com`) e IntroDB (`https://api.introdb.app`) sean correctas.
+4. (Opcional) Introduce tu API Key de IntroDB si tienes una.
+5. Activa el "Android Exo fallback" si usas la App oficial de Android y quieres salto automático.
 
-- No se realiza analisis de video/audio sobre el archivo.
-- No se requiere ffmpeg para detectar intros.
-- Si faltan metadatos (`imdb_id`, `tmdb_id`, temporada o episodio), puede no haber forma de consultar ninguna de las dos bases.
+## Cómo funciona
 
-## Estado
+El plugin monitoriza el inicio de las sesiones. Cuando detecta que un episodio de una serie no tiene marcadores, consulta las APIs externas. Si los encuentra, los inyecta en la base de datos de Jellyfin para que aparezca el botón de "Saltar Intro". En el caso de Android, el servidor envía una orden de salto forzado si se detecta que el reproductor está dentro del rango del intro.
 
-- Este MVP implementa sincronizacion on-demand + proveedor de media segments para Intro.
-- El salto depende del cliente de Jellyfin y de que el episodio tenga metadata suficiente (`imdb/season/episode`).
-
-## Configuracion
-
-La configuracion del plugin (`PluginConfiguration`) incluye:
-
-- `IntroDbBaseUrl`: por defecto `https://api.introdb.app`
-- `SyncIntervalHours`: cada cuantas horas corre la tarea
-- `MinimumConfidence`: confianza minima aceptada (0-1)
-- `OverwriteExistingMarkers`: reservado para una fase de escritura sobre metadata local
-- `SyncOnPlaybackStart`: sincroniza al iniciar reproduccion de episodios
-- `Enabled`: activa/desactiva sincronizacion
-
-## Build
-
-Requiere .NET SDK y que la version de paquetes Jellyfin coincida con tu servidor.
-
-```bash
-dotnet restore
-dotnet build
-dotnet publish -c Release
-```
-
-## Instalacion manual en Jellyfin
-
-1. Compilar el plugin.
-2. Copiar el DLL generado a la carpeta de plugins de Jellyfin, por ejemplo:
-   - Linux: `/var/lib/jellyfin/plugins/Jellyfin.Plugin.IntroDbSkip/`
-   - macOS (docker o ruta equivalente): depende de tu volumen de datos
-3. Reiniciar Jellyfin.
-4. Ejecutar la tarea programada `Sync IntroDB markers` desde Dashboard.
-
-## Instalacion por repositorio (Catalogo)
-
-Tambien puedes instalarlo agregando un repositorio en Jellyfin, sin copiar DLL manualmente.
-
-1. En Jellyfin ve a `Dashboard > Catalog > Repositories`.
-2. Agrega este URL:
-
-`https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/manifest.json`
-
-3. Guarda, vuelve al Catalogo e instala `IntroDB Skip`.
-
-## API del plugin
-
-Endpoint admin para validar cache:
-
-- `GET /IntroDbSkip/markers/{itemId}`
-
-Devuelve el marcador sincronizado para un episodio especifico.
+---
+*Desarrollado para la comunidad de Jellyfin.*
+扫

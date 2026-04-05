@@ -82,17 +82,17 @@ public class PlaybackStartSyncService : IHostedService
 
         if (!Plugin.Instance.PluginConfiguration.SyncOnPlaybackStart)
         {
-            _logger.LogDebug("SyncOnPlaybackStart is disabled. Skipping marker refresh.");
+            _logger.LogDebug("SyncOnPlaybackStart está desactivado. Saltando actualización de marcadores.");
             return;
         }
 
         if (e.Item is not Episode episode)
         {
-            _logger.LogDebug("Playback started for non-episode item {ItemName}. Skipping marker sync.", e.Item?.Name);
+            _logger.LogDebug("Inicio de reproducción de un ítem que no es episodio: {ItemName}. Saltando sincronización.", e.Item?.Name);
             return;
         }
 
-        _logger.LogInformation("Playback started for {SeriesName} S{Season:00}E{Episode:00}. Triggering marker refresh.", episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
+        _logger.LogInformation("Inicio de reproducción de {SeriesName} S{Season:00}E{Episode:00}. Actualizando marcadores.", episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
 
         _ = Task.Run(async () =>
         {
@@ -156,14 +156,14 @@ public class PlaybackStartSyncService : IHostedService
 
                 if (nextEpisode != null)
                 {
-                    _logger.LogInformation("Pre-fetching markers for next episode: {SeriesName} S{Season:00}E{Episode:00}",
+                    _logger.LogInformation("Pre-sincronizando marcadores para el próximo episodio: {SeriesName} S{Season:00}E{Episode:00}",
                         nextEpisode.SeriesName, nextEpisode.ParentIndexNumber, nextEpisode.IndexNumber);
                     await _episodeIntroSyncService.SyncEpisodeAsync(nextEpisode, CancellationToken.None).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to pre-fetch next episode for {SeriesName}", currentEpisode.SeriesName);
+                _logger.LogWarning(ex, "Error al pre-sincronizar el próximo episodio para {SeriesName}", currentEpisode.SeriesName);
             }
         });
     }
@@ -203,7 +203,7 @@ public class PlaybackStartSyncService : IHostedService
             return;
         }
 
-        _logger.LogInformation("Android Exo detected in intro window ({Pos}ms). Scheduling fallback seek to {Target}ms.", 
+        _logger.LogInformation("Android detectado en ventana de intro ({Pos}ms). Programando salto a {Target}ms.", 
             TimeSpan.FromTicks(positionTicks.Value).TotalMilliseconds, 
             TimeSpan.FromTicks(marker.EndTicks).TotalMilliseconds);
 
@@ -253,12 +253,12 @@ public class PlaybackStartSyncService : IHostedService
                     return;
                 }
 
-                _logger.LogInformation("Attempt {Num} to FORCE Seek Android session {SessionId} to {Target}ms", 
+                _logger.LogInformation("Intento {Num} de forzar salto en Android {SessionId} a {Target}ms", 
                     i + 1, sessionId, TimeSpan.FromTicks(pendingWindow.EndTicks).TotalMilliseconds);
 
-                // Using PlaystateCommand.Seek with null controller to bypass permission/state blocks
+                // Usando PlaystateCommand.Seek con controlador nulo para evitar bloqueos
                 await _sessionManager.SendPlaystateCommand(
-                    null, // System command
+                    null, // Comando de sistema
                     sessionId,
                     new PlaystateRequest
                     {
@@ -269,11 +269,11 @@ public class PlaybackStartSyncService : IHostedService
             }
 
             _pendingAndroidSkips.TryRemove(playSessionId, out _);
-            _logger.LogInformation("Finished aggressive skip attempts for {PlaySessionId}", playSessionId);
+            _logger.LogInformation("Finalizados los intentos de salto agresivo para {PlaySessionId}", playSessionId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed inside aggressive skip logic for {PlaySessionId}", playSessionId);
+            _logger.LogError(ex, "Error en la lógica de salto agresivo para {PlaySessionId}", playSessionId);
         }
         finally
         {

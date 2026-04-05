@@ -21,57 +21,57 @@
         </member>
         <member name="T:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration">
             <summary>
-            Plugin configuration for IntroDB synchronization.
+            Configuración del plugin para la sincronización de intros.
             </summary>
         </member>
         <member name="M:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration"/> class.
+            Inicializa una nueva instancia de la clase <see cref="T:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration"/>.
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.IntroDbBaseUrl">
             <summary>
-            Gets or sets the IntroDB API base url.
+            URL base de la API de IntroDB.
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.IntroDbApiKey">
             <summary>
-            Gets or sets the IntroDB API key.
+            Clave de API para IntroDB.
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.IntroHaterBaseUrl">
             <summary>
-            Gets or sets the IntroHater API base url.
+            URL base de la API de IntroHater.
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.SyncIntervalHours">
             <summary>
-            Gets or sets how often to run synchronization.
+            Frecuencia de sincronización (en horas).
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.MinimumConfidence">
             <summary>
-            Gets or sets the minimum confidence accepted from IntroDB.
+            Confianza mínima aceptada de los marcadores.
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.OverwriteExistingMarkers">
             <summary>
-            Gets or sets a value indicating whether the task overwrites existing local markers.
+            Indica si se deben sobrescribir los marcadores locales existentes.
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.SyncOnPlaybackStart">
             <summary>
-            Gets or sets a value indicating whether markers are fetched when playback starts.
+            Indica si se deben buscar marcadores al iniciar la reproducción.
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.AndroidExoAutoSkipFallback">
             <summary>
-            Gets or sets a value indicating whether Android Exo clients should receive server-side intro seek fallback.
+            Indica si se debe forzar el salto de intro en clientes Android/Exo.
             </summary>
         </member>
         <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.Enabled">
             <summary>
-            Gets or sets a value indicating whether synchronization is enabled.
+            Indica si el plugin está habilitado.
             </summary>
         </member>
         <member name="T:Jellyfin.Plugin.IntroDbSkip.Metadata.SegmentInfo">

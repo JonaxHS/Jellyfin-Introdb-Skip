@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8">
     <title>IntroDB Skip</title>
@@ -9,72 +9,79 @@
         <div data-role="content">
             <div class="content-primary">
                 <form id="IntroDbSkipConfigForm">
+                    <div class="sectionTitleContainer">
+                        <h2 class="sectionTitle">Configuración de IntroDB Skip</h2>
+                    </div>
+
                     <div class="fieldDescription" style="margin-bottom:16px;">
-                        Modo STRM/API: este plugin no analiza archivos locales. Consulta IntroDB primero y luego TheIntroDB, usando solo metadatos (IMDB/TMDB, temporada, episodio).
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="IntroDbBaseUrl">IntroDB Base URL</label>
-                        <input id="IntroDbBaseUrl" name="IntroDbBaseUrl" type="text" is="emby-input" />
-                        <div class="fieldDescription">Default: https://api.introdb.app</div>
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="IntroDbApiKey">IntroDB API Key</label>
-                        <input id="IntroDbApiKey" name="IntroDbApiKey" type="password" is="emby-input" autocomplete="off" />
-                        <div class="fieldDescription">Optional. Used for authenticated IntroDB requests (X-API-Key).</div>
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="IntroHaterBaseUrl">IntroHater Base URL</label>
-                        <input id="IntroHaterBaseUrl" name="IntroHaterBaseUrl" type="text" is="emby-input" />
-                        <div class="fieldDescription">Default: https://introhater.com</div>
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="SyncIntervalHours">Sync Interval (hours)</label>
-                        <input id="SyncIntervalHours" name="SyncIntervalHours" type="number" min="1" is="emby-input" />
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="MinimumConfidence">Minimum Confidence (0-1)</label>
-                        <input id="MinimumConfidence" name="MinimumConfidence" type="number" min="0" max="1" step="0.01" is="emby-input" />
+                        Modo STRM/API: Este plugin busca marcadores de intro en bases de datos externas (IntroHater e IntroDB) usando metadatos (IMDb ID) para evitar el escaneo pesado de archivos locales.
                     </div>
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
                             <input id="Enabled" name="Enabled" type="checkbox" is="emby-checkbox" />
-                            <span>Enable synchronization</span>
+                            <span>Habilitado</span>
                         </label>
+                        <div class="fieldDescription">Activar la sincronización automática de intros.</div>
                     </div>
 
-                    <div class="checkboxContainer checkboxContainer-withDescription">
-                        <label class="emby-checkbox-label">
-                            <input id="SyncOnPlaybackStart" name="SyncOnPlaybackStart" type="checkbox" is="emby-checkbox" />
-                            <span>Sync when episode playback starts</span>
-                        </label>
-                        <div class="fieldDescription">If enabled, the plugin also preloads markers when playback starts. For pure on-demand usage, leave this unchecked.</div>
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="IntroHaterBaseUrl">IntroHater API URL</label>
+                        <input id="IntroHaterBaseUrl" name="IntroHaterBaseUrl" type="text" is="emby-input" label="IntroHater Base URL" />
+                        <div class="fieldDescription">Servidor primario (por defecto: https://introhater.com)</div>
                     </div>
 
-                    <div class="checkboxContainer checkboxContainer-withDescription">
-                        <label class="emby-checkbox-label">
-                            <input id="AndroidExoAutoSkipFallback" name="AndroidExoAutoSkipFallback" type="checkbox" is="emby-checkbox" />
-                            <span>Android Exo fallback: auto-seek intro</span>
-                        </label>
-                        <div class="fieldDescription">If Android app does not show the button in time, server sends a seek to intro end when segment starts.</div>
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="IntroDbBaseUrl">IntroDB API URL</label>
+                        <input id="IntroDbBaseUrl" name="IntroDbBaseUrl" type="text" is="emby-input" label="IntroDB Base URL" />
+                        <div class="fieldDescription">Servidor secundario (por defecto: https://api.introdb.app)</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="IntroDbApiKey">IntroDB API Key</label>
+                        <input id="IntroDbApiKey" name="IntroDbApiKey" type="password" is="emby-input" label="IntroDB API Key" autocomplete="off" />
+                        <div class="fieldDescription">Opcional: Tu clave para IntroDB (X-API-Key).</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="SyncIntervalHours">Intervalo de sincronización (Horas)</label>
+                        <input id="SyncIntervalHours" name="SyncIntervalHours" type="number" is="emby-input" label="Intervalo (h)" min="1" max="168" />
+                        <div class="fieldDescription">Frecuencia con la que se buscan nuevos intros en segundo plano.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel" for="MinimumConfidence">Confianza mínima (0.0 a 1.0)</label>
+                        <input id="MinimumConfidence" name="MinimumConfidence" type="number" is="emby-input" label="Confianza" min="0" max="1" step="0.05" />
+                        <div class="fieldDescription">Ignorar marcadores con puntuación baja (Recomendado: 0.75).</div>
                     </div>
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
                             <input id="OverwriteExistingMarkers" name="OverwriteExistingMarkers" type="checkbox" is="emby-checkbox" />
-                            <span>Overwrite existing markers</span>
+                            <span>Sobrescribir marcadores existentes</span>
                         </label>
+                        <div class="fieldDescription">Reemplaza marcadores locales si la API tiene versiones más nuevas.</div>
                     </div>
 
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="SyncOnPlaybackStart" name="SyncOnPlaybackStart" type="checkbox" is="emby-checkbox" />
+                            <span>Sincronizar al reproducir</span>
+                        </label>
+                        <div class="fieldDescription">Busca el intro inmediatamente al abrir un video si no está en caché.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="AndroidExoAutoSkipFallback" name="AndroidExoAutoSkipFallback" type="checkbox" is="emby-checkbox" />
+                            <span>Salto automático en Android (Auto-Skip)</span>
+                        </label>
+                        <div class="fieldDescription">FUERZA el salto de intro desde el servidor para clientes Android que no muestran el botón nativo.</div>
+                    </div>
 
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block emby-button">
-                            <span>Save</span>
+                            <span>Guardar</span>
                         </button>
                     </div>
                 </form>
