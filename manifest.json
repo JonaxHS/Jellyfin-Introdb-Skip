@@ -12,7 +12,7 @@
         "changelog": "V2.3.0 - Versión final en ESPAÑOL. Limpieza de código no utilizado. Salto agresivo corregido para Android.",
         "targetAbi": "10.0.0.0",
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "f8380843433fb891b66af275542b69e6",
+        "checksum": "f66cf7f7c1af156309bfa14258eef492f2fbc8d9ccedc58cbd7ab5d7735d8b60",
         "timestamp": "2026-04-05T16:00:00Z"
       },
       {
@@ -20,9 +20,10 @@
         "changelog": "V2.2.4 - Fixed Android Seek by using null controller. Optimized retry logic and session checks.",
         "targetAbi": "10.0.0.0",
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "705cca56fb43f862ec633da31f03cc98",
+        "checksum": "2181734267442111caacc5b5b0bed9a7af7fa4a8cd4ed25c7980cd63cc43a129",
         "timestamp": "2026-04-05T15:45:00Z"
       }
     ]
   }
 ]
+扫
