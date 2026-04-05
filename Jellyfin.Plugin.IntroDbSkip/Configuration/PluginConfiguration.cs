@@ -16,6 +16,8 @@ public class PluginConfiguration : BasePluginConfiguration
         IntroDbApiKey = string.Empty;
         TheIntroDbBaseUrl = "https://api.theintrodb.org/v2";
         TheIntroDbApiKey = string.Empty;
+        TheIntroDbCookie = string.Empty;
+        TheIntroDbUserAgent = string.Empty;
         SyncIntervalHours = 24;
         MinimumConfidence = 0.75;
         OverwriteExistingMarkers = false;
@@ -43,6 +45,16 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets the TheIntroDB API key.
     /// </summary>
     public string TheIntroDbApiKey { get; set; }
+
+    /// <summary>
+    /// Gets or sets the TheIntroDB Cookie (Cloudflare bypass).
+    /// </summary>
+    public string TheIntroDbCookie { get; set; }
+
+    /// <summary>
+    /// Gets or sets the TheIntroDB User-Agent (Cloudflare bypass).
+    /// </summary>
+    public string TheIntroDbUserAgent { get; set; }
 
     /// <summary>
     /// Gets or sets how often to run synchronization.

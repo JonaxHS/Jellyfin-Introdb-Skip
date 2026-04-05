@@ -89,15 +89,16 @@ public class IntroDbClient
         var url = season.HasValue && episode.HasValue
             ? $"{safeBaseUrl}/media?tmdb_id={tmdbId}&season={season}&episode={episode}"
             : $"{safeBaseUrl}/media?tmdb_id={tmdbId}";
-
-        var response = await SendRequestAsync(url, apiKey, AuthHeaderMode.Bearer, cancellationToken).ConfigureAwait(false);
+ 
+        var config = Plugin.Instance.PluginConfiguration;
+        var response = await SendRequestAsync(url, apiKey, AuthHeaderMode.Bearer, cancellationToken, config.TheIntroDbCookie, config.TheIntroDbUserAgent).ConfigureAwait(false);
 
         if ((response?.StatusCode == System.Net.HttpStatusCode.Unauthorized || response?.StatusCode == System.Net.HttpStatusCode.Forbidden)
             && !string.IsNullOrWhiteSpace(apiKey))
         {
             _logger.LogWarning("TheIntroDB rejected configured API key for read endpoint. Retrying without API key.");
             response.Dispose();
-            response = await SendRequestAsync(url, null, AuthHeaderMode.Bearer, cancellationToken).ConfigureAwait(false);
+            response = await SendRequestAsync(url, null, AuthHeaderMode.Bearer, cancellationToken, config.TheIntroDbCookie, config.TheIntroDbUserAgent).ConfigureAwait(false);
         }
 
         if (response is null)
@@ -120,7 +121,13 @@ public class IntroDbClient
         }
     }
 
-    private async Task<HttpResponseMessage?> SendRequestAsync(string url, string? apiKey, AuthHeaderMode authHeaderMode, CancellationToken cancellationToken)
+    private async Task<HttpResponseMessage?> SendRequestAsync(
+        string url,
+        string? apiKey,
+        AuthHeaderMode authHeaderMode,
+        CancellationToken cancellationToken,
+        string? cookie = null,
+        string? userAgentOverride = null)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         if (!string.IsNullOrWhiteSpace(apiKey))
@@ -137,8 +144,15 @@ public class IntroDbClient
         }
 
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        request.Headers.TryAddWithoutValidation("User-Agent", "Jellyfin.Plugin.IntroDbSkip/1.6.2.0");
-
+ 
+        var ua = !string.IsNullOrWhiteSpace(userAgentOverride) ? userAgentOverride : "Jellyfin.Plugin.IntroDbSkip/1.6.3.0";
+        request.Headers.TryAddWithoutValidation("User-Agent", ua);
+ 
+        if (!string.IsNullOrWhiteSpace(cookie))
+        {
+            request.Headers.TryAddWithoutValidation("Cookie", cookie);
+        }
+ 
         return await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }
 

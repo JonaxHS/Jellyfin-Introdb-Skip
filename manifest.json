@@ -8,6 +8,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.6.3.0",
+        "changelog": "Add Cloudflare bypass settings (Cookie and User-Agent) for TheIntroDB.",
+        "targetAbi": "10.11.0.0",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/artifacts/Jellyfin.Plugin.IntroDbSkip_1.6.3.0.zip",
+        "checksum": "dbd4c85bb28d21b27a7958c284853e5c",
+        "timestamp": "2026-04-05T00:00:00Z"
+      },
+      {
         "version": "1.6.2.0",
         "changelog": "Add User-Agent header to API requests to resolve 403 Forbidden errors from TheIntroDB.",
         "targetAbi": "10.11.0.0",

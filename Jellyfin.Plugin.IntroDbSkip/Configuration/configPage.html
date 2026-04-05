@@ -38,6 +38,18 @@
                     </div>
 
                     <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="TheIntroDbCookie">TheIntroDB Cookie (Cloudflare Bypass)</label>
+                        <input id="TheIntroDbCookie" name="TheIntroDbCookie" type="text" is="emby-input" />
+                        <div class="fieldDescription">Optional. Provide a valid 'cf_clearance' cookie if TheIntroDB is challenging your IP.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="TheIntroDbUserAgent">TheIntroDB User-Agent (Cloudflare Bypass)</label>
+                        <input id="TheIntroDbUserAgent" name="TheIntroDbUserAgent" type="text" is="emby-input" />
+                        <div class="fieldDescription">Optional. Provide the exact User-Agent that matches the cookie above.</div>
+                    </div>
+
+                    <div class="inputContainer">
                         <label class="inputLabel inputLabelUnfocused" for="SyncIntervalHours">Sync Interval (hours)</label>
                         <input id="SyncIntervalHours" name="SyncIntervalHours" type="number" min="1" is="emby-input" />
                     </div>
@@ -99,6 +111,8 @@
                         document.querySelector('#IntroDbApiKey').value = config.IntroDbApiKey || '';
                         document.querySelector('#TheIntroDbBaseUrl').value = config.TheIntroDbBaseUrl || 'https://api.theintrodb.org/v2';
                         document.querySelector('#TheIntroDbApiKey').value = config.TheIntroDbApiKey || '';
+                        document.querySelector('#TheIntroDbCookie').value = config.TheIntroDbCookie || '';
+                        document.querySelector('#TheIntroDbUserAgent').value = config.TheIntroDbUserAgent || '';
                         document.querySelector('#SyncIntervalHours').value = config.SyncIntervalHours || 24;
                         document.querySelector('#MinimumConfidence').value = config.MinimumConfidence || 0.75;
                         document.querySelector('#Enabled').checked = config.Enabled !== false;
@@ -117,6 +131,8 @@
                         config.IntroDbApiKey = document.querySelector('#IntroDbApiKey').value;
                         config.TheIntroDbBaseUrl = document.querySelector('#TheIntroDbBaseUrl').value;
                         config.TheIntroDbApiKey = document.querySelector('#TheIntroDbApiKey').value;
+                        config.TheIntroDbCookie = document.querySelector('#TheIntroDbCookie').value;
+                        config.TheIntroDbUserAgent = document.querySelector('#TheIntroDbUserAgent').value;
                         config.SyncIntervalHours = parseInt(document.querySelector('#SyncIntervalHours').value, 10) || 24;
                         config.MinimumConfidence = parseFloat(document.querySelector('#MinimumConfidence').value) || 0.75;
                         config.Enabled = document.querySelector('#Enabled').checked;
