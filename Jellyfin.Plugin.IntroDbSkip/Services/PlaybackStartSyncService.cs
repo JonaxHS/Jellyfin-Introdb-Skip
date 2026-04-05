@@ -27,7 +27,7 @@ public class PlaybackStartSyncService : IHostedService
     private readonly IMediaSegmentManager _mediaSegmentManager;
     private readonly EpisodeIntroSyncService _episodeIntroSyncService;
     private readonly ILogger<PlaybackStartSyncService> _logger;
-    private readonly ConcurrentDictionary<string, (long StartTicks, long EndTicks)> _pendingAndroidSkips = new();
+    private readonly ConcurrentDictionary<string, (string SessionId, long StartTicks, long EndTicks)> _pendingAndroidSkips = new();
     private readonly ConcurrentDictionary<string, byte> _androidSeekInFlight = new();
 
     /// <summary>
@@ -69,6 +69,17 @@ public class PlaybackStartSyncService : IHostedService
 
     private void SessionManagerOnPlaybackStart(object? sender, PlaybackProgressEventArgs e)
     {
+        if (e.Session?.Id is not null)
+        {
+            var sessionId = e.Session.Id;
+            var staleKeys = _pendingAndroidSkips.Where(kvp => kvp.Value.SessionId == sessionId).Select(kvp => kvp.Key).ToList();
+            foreach (var key in staleKeys)
+            {
+                _pendingAndroidSkips.TryRemove(key, out _);
+                _androidSeekInFlight.TryRemove(key, out _);
+            }
+        }
+
         if (!Plugin.Instance.PluginConfiguration.SyncOnPlaybackStart)
         {
             _logger.LogDebug("SyncOnPlaybackStart is disabled. Skipping marker refresh.");
@@ -102,7 +113,7 @@ public class PlaybackStartSyncService : IHostedService
                     if (marker is not null && marker.EndMs > marker.StartMs && !string.IsNullOrWhiteSpace(e.PlaySessionId))
                     {
                         _pendingAndroidSkips[e.PlaySessionId] =
-                            (marker.StartMs * TimeSpan.TicksPerMillisecond, marker.EndMs * TimeSpan.TicksPerMillisecond);
+                            (e.Session.Id, marker.StartMs * TimeSpan.TicksPerMillisecond, marker.EndMs * TimeSpan.TicksPerMillisecond);
 
                         _logger.LogDebug(
                             "Prepared Android Exo fallback window for playSession {PlaySessionId}: {StartMs}ms-{EndMs}ms",

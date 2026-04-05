@@ -8,14 +8,13 @@
     "category": "General",
     "versions": [
       {
-        "version": "2.1.0.0",
-        "changelog": "V2.1.0 - Added Next Episode Pre-fetching. Markers for the next chapter are now fetched in the background when the current one starts.",
+        "version": "2.1.1.0",
+        "changelog": "V2.1.1 - Fixed marker leakage. Markers from previous shows are now cleared when a new one starts. Includes Next Episode Pre-fetching.",
         "targetAbi": "10.0.0.0",
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "124e12aa3c0bb1410d52d03f4a99be88",
-        "timestamp": "2026-04-05T14:45:00Z"
+        "checksum": "b54f848b30f3fec6ad274924275ab738",
+        "timestamp": "2026-04-05T14:55:00Z"
       }
     ]
   }
 ]
-扫
