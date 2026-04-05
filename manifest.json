@@ -8,12 +8,12 @@
     "category": "General",
     "versions": [
       {
-        "version": "2.3.0.0",
-        "changelog": "V2.3.0 - Version final en ESPANOL. Limpieza de codigo no utilizado. Salto agresivo corregido para Android.",
+        "version": "2.3.1.0",
+        "changelog": "V2.3.1 - New patch release to force a fresh repository fetch and package install.",
         "targetAbi": "10.0.0.0",
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "df702266ebfbc20490983d815b613def",
-        "timestamp": "2026-04-05T16:30:00Z"
+        "checksum": "b1adf36cd36d0381aecdf0d9ef95f1c4",
+        "timestamp": "2026-04-05T17:00:00Z"
       }
     ]
   }
