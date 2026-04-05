@@ -223,37 +223,56 @@ public class PlaybackStartSyncService : IHostedService
     {
         try
         {
-            // Small delay to let the client settle
-            await Task.Delay(TimeSpan.FromMilliseconds(1500)).ConfigureAwait(false);
-
-            if (!_pendingAndroidSkips.TryGetValue(playSessionId, out var pendingWindow))
+            // The Android app (ExoPlayer) often ignores Seek commands during the initial buffering phase.
+            // We'll try up to 3 times with increasing delays until it works or we exit the window.
+            for (int i = 0; i < 3; i++)
             {
-                _logger.LogDebug("Android fallback seek cancelled: playSession {PlaySessionId} no longer pending.", playSessionId);
-                return;
+                // Delay: 1.5s, 3.5s, 5.5s
+                await Task.Delay(TimeSpan.FromMilliseconds(1500 + (i * 2000))).ConfigureAwait(false);
+
+                if (!_pendingAndroidSkips.TryGetValue(playSessionId, out var pendingWindow))
+                {
+                    return;
+                }
+
+                // Check if the session is still active and valid
+                var session = _sessionManager.Sessions.FirstOrDefault(s => s.Id == sessionId);
+                if (session == null || session.PlayState == null)
+                {
+                    _logger.LogDebug("Android session {SessionId} no longer active. Stopping retry.", sessionId);
+                    return;
+                }
+
+                // If the user already skipped or the video moved past the intro, we stop.
+                var currentPos = session.PlayState.PositionTicks ?? 0;
+                if (currentPos >= pendingWindow.EndTicks)
+                {
+                    _logger.LogInformation("Android session {SessionId} already past intro ({Pos}ms). Auto-skip complete.", 
+                        sessionId, TimeSpan.FromTicks(currentPos).TotalMilliseconds);
+                    _pendingAndroidSkips.TryRemove(playSessionId, out _);
+                    return;
+                }
+
+                _logger.LogInformation("Attempt {Num} to Seek Android session {SessionId} to {Target}ms (Current: {Current}ms)", 
+                    i + 1, sessionId, TimeSpan.FromTicks(pendingWindow.EndTicks).TotalMilliseconds, TimeSpan.FromTicks(currentPos).TotalMilliseconds);
+
+                await _sessionManager.SendPlaystateCommand(
+                    sessionId,
+                    sessionId,
+                    new PlaystateRequest
+                    {
+                        Command = PlaystateCommand.Seek,
+                        SeekPositionTicks = pendingWindow.EndTicks
+                    },
+                    CancellationToken.None).ConfigureAwait(false);
             }
 
-            // Always seek to the end of the window
-            seekPositionTicks = pendingWindow.EndTicks;
-
-            _logger.LogInformation("Sending Seek command to Android session {SessionId} at position {Target}ms", 
-                sessionId, TimeSpan.FromTicks(seekPositionTicks).TotalMilliseconds);
-
-            await _sessionManager.SendPlaystateCommand(
-                sessionId,
-                sessionId,
-                new PlaystateRequest
-                {
-                    Command = PlaystateCommand.Seek,
-                    SeekPositionTicks = seekPositionTicks
-                },
-                CancellationToken.None).ConfigureAwait(false);
-
             _pendingAndroidSkips.TryRemove(playSessionId, out _);
-            _logger.LogInformation("Successfully applied Android Exo fallback seek for {PlaySessionId}", playSessionId);
+            _logger.LogInformation("Finished aggressive skip attempts for {PlaySessionId}", playSessionId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to apply Android Exo fallback seek for {PlaySessionId}", playSessionId);
+            _logger.LogError(ex, "Failed inside aggressive skip logic for {PlaySessionId}", playSessionId);
         }
         finally
         {
