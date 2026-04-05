@@ -26,27 +26,9 @@
                     </div>
 
                     <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="TheIntroDbBaseUrl">TheIntroDB Base URL</label>
-                        <input id="TheIntroDbBaseUrl" name="TheIntroDbBaseUrl" type="text" is="emby-input" />
-                        <div class="fieldDescription">Default: https://api.theintrodb.org/v2</div>
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="TheIntroDbApiKey">TheIntroDB API Key</label>
-                        <input id="TheIntroDbApiKey" name="TheIntroDbApiKey" type="password" is="emby-input" autocomplete="off" />
-                        <div class="fieldDescription">Optional. Used if the second API requires a key.</div>
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="TheIntroDbCookie">TheIntroDB Cookie (Cloudflare Bypass)</label>
-                        <input id="TheIntroDbCookie" name="TheIntroDbCookie" type="text" is="emby-input" />
-                        <div class="fieldDescription">Optional. Provide a valid 'cf_clearance' cookie if TheIntroDB is challenging your IP.</div>
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="TheIntroDbUserAgent">TheIntroDB User-Agent (Cloudflare Bypass)</label>
-                        <input id="TheIntroDbUserAgent" name="TheIntroDbUserAgent" type="text" is="emby-input" />
-                        <div class="fieldDescription">Optional. Provide the exact User-Agent that matches the cookie above.</div>
+                        <label class="inputLabel inputLabelUnfocused" for="IntroHaterBaseUrl">IntroHater Base URL</label>
+                        <input id="IntroHaterBaseUrl" name="IntroHaterBaseUrl" type="text" is="emby-input" />
+                        <div class="fieldDescription">Default: https://introhater.com</div>
                     </div>
 
                     <div class="inputContainer">
@@ -109,10 +91,7 @@
                     ApiClient.getPluginConfiguration(IntroDbSkipConfig.pluginUniqueId).then(function (config) {
                         document.querySelector('#IntroDbBaseUrl').value = config.IntroDbBaseUrl || 'https://api.introdb.app';
                         document.querySelector('#IntroDbApiKey').value = config.IntroDbApiKey || '';
-                        document.querySelector('#TheIntroDbBaseUrl').value = config.TheIntroDbBaseUrl || 'https://api.theintrodb.org/v2';
-                        document.querySelector('#TheIntroDbApiKey').value = config.TheIntroDbApiKey || '';
-                        document.querySelector('#TheIntroDbCookie').value = config.TheIntroDbCookie || '';
-                        document.querySelector('#TheIntroDbUserAgent').value = config.TheIntroDbUserAgent || '';
+                        document.querySelector('#IntroHaterBaseUrl').value = config.IntroHaterBaseUrl || 'https://introhater.com';
                         document.querySelector('#SyncIntervalHours').value = config.SyncIntervalHours || 24;
                         document.querySelector('#MinimumConfidence').value = config.MinimumConfidence || 0.75;
                         document.querySelector('#Enabled').checked = config.Enabled !== false;
@@ -129,10 +108,7 @@
                     ApiClient.getPluginConfiguration(IntroDbSkipConfig.pluginUniqueId).then(function (config) {
                         config.IntroDbBaseUrl = document.querySelector('#IntroDbBaseUrl').value;
                         config.IntroDbApiKey = document.querySelector('#IntroDbApiKey').value;
-                        config.TheIntroDbBaseUrl = document.querySelector('#TheIntroDbBaseUrl').value;
-                        config.TheIntroDbApiKey = document.querySelector('#TheIntroDbApiKey').value;
-                        config.TheIntroDbCookie = document.querySelector('#TheIntroDbCookie').value;
-                        config.TheIntroDbUserAgent = document.querySelector('#TheIntroDbUserAgent').value;
+                        config.IntroHaterBaseUrl = document.querySelector('#IntroHaterBaseUrl').value;
                         config.SyncIntervalHours = parseInt(document.querySelector('#SyncIntervalHours').value, 10) || 24;
                         config.MinimumConfidence = parseFloat(document.querySelector('#MinimumConfidence').value) || 0.75;
                         config.Enabled = document.querySelector('#Enabled').checked;

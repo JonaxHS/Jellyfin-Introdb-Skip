@@ -51,45 +51,21 @@ public sealed class IntroDbSegmentsResponse
 }
 
 /// <summary>
-/// Segment payload returned by TheIntroDB.
+/// Segment payload returned by IntroHater.
 /// </summary>
-public sealed class TheIntroDbSegmentInfo
+public sealed class IntroHaterSegment
 {
-    [JsonPropertyName("start_ms")]
-    public int? StartMs { get; set; }
+    [JsonPropertyName("start")]
+    public double Start { get; set; }
 
-    [JsonPropertyName("end_ms")]
-    public int? EndMs { get; set; }
+    [JsonPropertyName("end")]
+    public double End { get; set; }
 
-    [JsonPropertyName("start_sec")]
-    public double? StartSec { get; set; }
+    [JsonPropertyName("label")]
+    public string? Label { get; set; }
 
-    [JsonPropertyName("end_sec")]
-    public double? EndSec { get; set; }
-}
-
-/// <summary>
-/// TheIntroDB response for GET /media.
-/// </summary>
-public sealed class TheIntroDbMediaResponse
-{
-    [JsonPropertyName("tmdb_id")]
-    public int? TmdbId { get; set; }
-
-    [JsonPropertyName("type")]
-    public string? Type { get; set; }
-
-    [JsonPropertyName("intro")]
-    public TheIntroDbSegmentInfo[]? Intro { get; set; }
-
-    [JsonPropertyName("recap")]
-    public TheIntroDbSegmentInfo[]? Recap { get; set; }
-
-    [JsonPropertyName("credits")]
-    public TheIntroDbSegmentInfo[]? Credits { get; set; }
-
-    [JsonPropertyName("preview")]
-    public TheIntroDbSegmentInfo[]? Preview { get; set; }
+    [JsonPropertyName("verified")]
+    public bool Verified { get; set; }
 }
 
 /// <summary>

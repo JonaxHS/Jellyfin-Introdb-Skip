@@ -1,0 +1,303 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Jellyfin.Plugin.IntroDbSkip</name>
+    </assembly>
+    <members>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Api.IntroDbSkipController">
+            <summary>
+            API endpoints for IntroDB marker cache.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Api.IntroDbSkipController.#ctor(Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Api.IntroDbSkipController"/> class.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Api.IntroDbSkipController.GetMarker(System.Guid)">
+            <summary>
+            Gets a cached marker for the specified item id.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration">
+            <summary>
+            Plugin configuration for IntroDB synchronization.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration"/> class.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.IntroDbBaseUrl">
+            <summary>
+            Gets or sets the IntroDB API base url.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.IntroDbApiKey">
+            <summary>
+            Gets or sets the IntroDB API key.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.IntroHaterBaseUrl">
+            <summary>
+            Gets or sets the IntroHater API base url.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.SyncIntervalHours">
+            <summary>
+            Gets or sets how often to run synchronization.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.MinimumConfidence">
+            <summary>
+            Gets or sets the minimum confidence accepted from IntroDB.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.OverwriteExistingMarkers">
+            <summary>
+            Gets or sets a value indicating whether the task overwrites existing local markers.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.SyncOnPlaybackStart">
+            <summary>
+            Gets or sets a value indicating whether markers are fetched when playback starts.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.AndroidExoAutoSkipFallback">
+            <summary>
+            Gets or sets a value indicating whether Android Exo clients should receive server-side intro seek fallback.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Configuration.PluginConfiguration.Enabled">
+            <summary>
+            Gets or sets a value indicating whether synchronization is enabled.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Metadata.SegmentInfo">
+            <summary>
+            Segment payload for intro/recap/outro.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Metadata.IntroDbSegmentsResponse">
+            <summary>
+            IntroDB response for GET /segments.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Metadata.IntroHaterSegment">
+            <summary>
+            Segment payload returned by IntroHater.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Metadata.CachedIntroMarker">
+            <summary>
+            Cached marker entry mapped to a Jellyfin item.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Plugin">
+            <summary>
+            Main plugin class.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Plugin.#ctor(MediaBrowser.Common.Configuration.IApplicationPaths,MediaBrowser.Model.Serialization.IXmlSerializer)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Plugin"/> class.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Plugin.Instance">
+            <summary>
+            Gets the current plugin instance.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Plugin.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Plugin.Description">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Plugin.Id">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Plugin.PluginConfiguration">
+            <summary>
+            Gets strongly typed plugin configuration.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Plugin.GetPages">
+            <inheritdoc/>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.PluginServiceRegistrator">
+            <summary>
+            Registers plugin services in Jellyfin DI.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.PluginServiceRegistrator.RegisterServices(Microsoft.Extensions.DependencyInjection.IServiceCollection,MediaBrowser.Controller.IServerApplicationHost)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask">
+            <summary>
+            Backfills intro markers from the configured intro sources.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.#ctor(MediaBrowser.Controller.Library.ILibraryManager,Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask"/> class.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.Key">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.Description">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.Category">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.IsHidden">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.IsEnabled">
+            <inheritdoc/>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.IsLogged">
+            <inheritdoc/>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.ExecuteAsync(System.IProgress{System.Double},System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.ScheduledTasks.SyncIntroSegmentsTask.GetDefaultTriggers">
+            <inheritdoc/>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService">
+            <summary>
+            Synchronizes intro markers for a single episode.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService.#ctor(Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient,Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore,MediaBrowser.Controller.Library.ILibraryManager,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService"/> class.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService.SyncEpisodeAsync(MediaBrowser.Controller.Entities.TV.Episode,System.Threading.CancellationToken)">
+            <summary>
+            Fetches and stores intro marker for one episode.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService.GetOrFetchMarkerAsync(MediaBrowser.Controller.Entities.TV.Episode,System.Threading.CancellationToken)">
+            <summary>
+            Gets a cached marker for an episode or fetches it from IntroDB.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient">
+            <summary>
+            HTTP client wrapper for IntroDB API.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient.#ctor(System.Net.Http.HttpClient,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient"/> class.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient.GetIntroDbSegmentsAsync(System.String,System.String,System.String,System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Fetches episode segments from IntroDB.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbClient.GetIntroHaterSegmentsAsync(System.String,System.String,System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Fetches episode segments from IntroHater.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider">
+            <summary>
+            Media segment provider that resolves Intro segments from IntroDB using episode metadata.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider.#ctor(MediaBrowser.Controller.Library.ILibraryManager,Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService,Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider"/> class.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider.Name">
+            <inheritdoc />
+        </member>
+        <member name="P:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider.Order">
+            <inheritdoc />
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider.GetMediaSegments(MediaBrowser.Model.MediaSegmentGenerationRequest,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider.Supports(MediaBrowser.Controller.Entities.BaseItem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroDbMediaSegmentProvider.CleanupExtractedData(System.Guid,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore">
+            <summary>
+            Persists synchronized intro markers in plugin data.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore.#ctor(MediaBrowser.Common.Configuration.IApplicationPaths)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore"/> class.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore.Upsert(Jellyfin.Plugin.IntroDbSkip.Metadata.CachedIntroMarker)">
+            <summary>
+            Upserts an intro marker for a media item.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore.Get(System.Guid)">
+            <summary>
+            Gets a marker for an item id.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore.GetAll">
+            <summary>
+            Gets all cached markers.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.IntroMarkerStore.Remove(System.Guid)">
+            <summary>
+            Removes a marker by item id.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Services.PlaybackStartSyncService">
+            <summary>
+            Fetches IntroDB markers on playback start events.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.PlaybackStartSyncService.#ctor(MediaBrowser.Controller.Session.ISessionManager,MediaBrowser.Controller.Library.ILibraryManager,MediaBrowser.Controller.MediaSegments.IMediaSegmentManager,Jellyfin.Plugin.IntroDbSkip.Services.EpisodeIntroSyncService,Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.IntroDbSkip.Services.PlaybackStartSyncService})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Services.PlaybackStartSyncService"/> class.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.PlaybackStartSyncService.StartAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.PlaybackStartSyncService.StopAsync(System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Jellyfin.Plugin.IntroDbSkip.Services.PluginStartupProbeService">
+            <summary>
+            Logs a startup probe when the plugin assembly is loaded by Jellyfin.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.PluginStartupProbeService.#ctor(Microsoft.Extensions.Logging.ILogger{Jellyfin.Plugin.IntroDbSkip.Services.PluginStartupProbeService})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Jellyfin.Plugin.IntroDbSkip.Services.PluginStartupProbeService"/> class.
+            </summary>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.PluginStartupProbeService.StartAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:Jellyfin.Plugin.IntroDbSkip.Services.PluginStartupProbeService.StopAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

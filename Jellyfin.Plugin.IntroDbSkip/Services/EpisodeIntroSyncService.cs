@@ -101,22 +101,34 @@ public class EpisodeIntroSyncService
             }
         }
 
-        if (tmdbId is not null && (introSegment is null || recapSegment is null || creditsSegment is null))
+        if (!string.IsNullOrWhiteSpace(imdbId) && (introSegment is null || recapSegment is null || creditsSegment is null))
         {
             try
             {
-                _logger.LogInformation("Attempting TheIntroDB sync for {Series} S{Season:00}E{Episode:00} using TMDB {TmdbId}", episode.SeriesName, season, episodeNumber, tmdbId);
+                _logger.LogInformation("Attempting IntroHater sync for {Series} S{Season:00}E{Episode:00} using IMDb {ImdbId}", episode.SeriesName, season, episodeNumber, imdbId);
                 var response = await _introDbClient
-                    .GetTheIntroDbMediaAsync(config.TheIntroDbBaseUrl, config.TheIntroDbApiKey, tmdbId.Value, season, episodeNumber, cancellationToken)
+                    .GetIntroHaterSegmentsAsync(config.IntroHaterBaseUrl, imdbId, season, episodeNumber, cancellationToken)
                     .ConfigureAwait(false);
 
-                introSegment ??= GetBestSegment(response?.Intro);
-                recapSegment ??= GetBestSegment(response?.Recap);
-                creditsSegment ??= GetBestCreditsSegment(response?.Credits);
+                if (response is not null)
+                {
+                    var intro = response.FirstOrDefault(s => s.Label?.Equals("Intro", StringComparison.OrdinalIgnoreCase) == true);
+                    var recap = response.FirstOrDefault(s => s.Label?.Equals("Recap", StringComparison.OrdinalIgnoreCase) == true);
+                    var credits = response.FirstOrDefault(s => s.Label?.Contains("Credits", StringComparison.OrdinalIgnoreCase) == true
+                                                               || s.Label?.Contains("Outro", StringComparison.OrdinalIgnoreCase) == true);
+
+                    introSegment ??= NormalizeIntroHaterSegment(intro);
+                    recapSegment ??= NormalizeIntroHaterSegment(recap);
+                    var haterCredits = NormalizeIntroHaterSegment(credits);
+                    if (haterCredits is not null)
+                    {
+                        creditsSegment ??= (haterCredits.Value.StartMs, haterCredits.Value.EndMs);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "TheIntroDB request failed for {Series} S{Season:00}E{Episode:00}", episode.SeriesName, season, episodeNumber);
+                _logger.LogWarning(ex, "IntroHater request failed for {Series} S{Season:00}E{Episode:00}", episode.SeriesName, season, episodeNumber);
             }
         }
 
@@ -177,76 +189,17 @@ public class EpisodeIntroSyncService
         return (imdbId, tmdbId);
     }
 
-    private static (int StartMs, int EndMs)? GetBestSegment(TheIntroDbSegmentInfo[]? segments)
+    private static (int StartMs, int EndMs)? NormalizeIntroHaterSegment(IntroHaterSegment? segment)
     {
-        if (segments is null || segments.Length == 0)
+        if (segment is null)
         {
             return null;
         }
 
-        var normalizedSegments = segments
-            .Where(segment => segment is not null)
-            .Select(segment => NormalizeSegment(segment!))
-            .Where(segment => segment.HasValue)
-            .Select(segment => segment!.Value)
-            .OrderBy(segment => segment.StartMs)
-            .ToArray();
-
-        if (normalizedSegments.Length == 0)
-        {
-            return null;
-        }
-
-        return normalizedSegments[0];
-    }
-
-    private static (int StartMs, int? EndMs)? GetBestCreditsSegment(TheIntroDbSegmentInfo[]? segments)
-    {
-        if (segments is null || segments.Length == 0)
-        {
-            return null;
-        }
-
-        var normalizedSegments = segments
-            .Where(segment => segment is not null)
-            .Select(segment => NormalizeCreditsSegment(segment!))
-            .Where(segment => segment.HasValue)
-            .Select(segment => segment!.Value)
-            .OrderBy(segment => segment.StartMs)
-            .ToArray();
-
-        if (normalizedSegments.Length == 0)
-        {
-            return null;
-        }
-
-        return normalizedSegments[0];
-    }
-
-    private static (int StartMs, int EndMs)? NormalizeSegment(TheIntroDbSegmentInfo segment)
-    {
-        var startMs = segment.StartMs ?? (segment.StartSec.HasValue ? (int)Math.Round(segment.StartSec.Value * 1000.0) : 0);
-        var endMs = segment.EndMs ?? (segment.EndSec.HasValue ? (int)Math.Round(segment.EndSec.Value * 1000.0) : 0);
+        var startMs = (int)Math.Round(segment.Start * 1000.0);
+        var endMs = (int)Math.Round(segment.End * 1000.0);
 
         if (endMs <= startMs)
-        {
-            return null;
-        }
-
-        return (startMs, endMs);
-    }
-
-    private static (int StartMs, int? EndMs)? NormalizeCreditsSegment(TheIntroDbSegmentInfo segment)
-    {
-        var startMs = segment.StartMs ?? (segment.StartSec.HasValue ? (int)Math.Round(segment.StartSec.Value * 1000.0) : 0);
-        var endMs = segment.EndMs ?? (segment.EndSec.HasValue ? (int)Math.Round(segment.EndSec.Value * 1000.0) : (int?)null);
-
-        if (startMs < 0)
-        {
-            return null;
-        }
-
-        if (endMs.HasValue && endMs.Value <= startMs)
         {
             return null;
         }

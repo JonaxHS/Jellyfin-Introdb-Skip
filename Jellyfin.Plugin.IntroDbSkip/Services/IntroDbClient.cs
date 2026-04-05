@@ -45,7 +45,7 @@ public class IntroDbClient
             CultureInfo.InvariantCulture,
             $"{safeBaseUrl}/segments?imdb_id={Uri.EscapeDataString(imdbId)}&season={season}&episode={episode}");
 
-        var response = await SendRequestAsync(url, apiKey, AuthHeaderMode.XApiKey, cancellationToken).ConfigureAwait(false);
+        var response = await SendRequestAsync(url, apiKey, cancellationToken).ConfigureAwait(false);
 
         // Read endpoints are public. If configured API key is invalid, retry without it.
         if ((response?.StatusCode == System.Net.HttpStatusCode.Unauthorized || response?.StatusCode == System.Net.HttpStatusCode.Forbidden)
@@ -53,7 +53,7 @@ public class IntroDbClient
         {
             _logger.LogWarning("IntroDB rejected configured API key for read endpoint. Retrying without API key.");
             response.Dispose();
-            response = await SendRequestAsync(url, null, AuthHeaderMode.XApiKey, cancellationToken).ConfigureAwait(false);
+            response = await SendRequestAsync(url, null, cancellationToken).ConfigureAwait(false);
         }
 
         if (response is null)
@@ -75,31 +75,19 @@ public class IntroDbClient
     }
 
     /// <summary>
-    /// Fetches episode segments from TheIntroDB.
+    /// Fetches episode segments from IntroHater.
     /// </summary>
-    public async Task<TheIntroDbMediaResponse?> GetTheIntroDbMediaAsync(
+    public async Task<IntroHaterSegment[]?> GetIntroHaterSegmentsAsync(
         string baseUrl,
-        string? apiKey,
-        int tmdbId,
-        int? season,
-        int? episode,
+        string imdbId,
+        int season,
+        int episode,
         CancellationToken cancellationToken)
     {
-        var safeBaseUrl = NormalizeBaseUrl(baseUrl, defaultUrl: "https://api.theintrodb.org/v2");
-        var url = season.HasValue && episode.HasValue
-            ? $"{safeBaseUrl}/media?tmdb_id={tmdbId}&season={season}&episode={episode}"
-            : $"{safeBaseUrl}/media?tmdb_id={tmdbId}";
- 
-        var config = Plugin.Instance.PluginConfiguration;
-        var response = await SendRequestAsync(url, apiKey, AuthHeaderMode.Bearer, cancellationToken, config.TheIntroDbCookie, config.TheIntroDbUserAgent).ConfigureAwait(false);
+        var safeBaseUrl = NormalizeBaseUrl(baseUrl, defaultUrl: "https://introhater.com");
+        var url = $"{safeBaseUrl}/api/segments/{imdbId}:{season}:{episode}";
 
-        if ((response?.StatusCode == System.Net.HttpStatusCode.Unauthorized || response?.StatusCode == System.Net.HttpStatusCode.Forbidden)
-            && !string.IsNullOrWhiteSpace(apiKey))
-        {
-            _logger.LogWarning("TheIntroDB rejected configured API key for read endpoint. Retrying without API key.");
-            response.Dispose();
-            response = await SendRequestAsync(url, null, AuthHeaderMode.Bearer, cancellationToken, config.TheIntroDbCookie, config.TheIntroDbUserAgent).ConfigureAwait(false);
-        }
+        var response = await SendRequestAsync(url, null, cancellationToken).ConfigureAwait(false);
 
         if (response is null)
         {
@@ -110,49 +98,31 @@ public class IntroDbClient
         {
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("TheIntroDB request failed with status code {StatusCode} for {Url}", (int)response.StatusCode, url);
+                _logger.LogInformation("IntroHater request failed with status code {StatusCode} for {Url}", (int)response.StatusCode, url);
                 return null;
             }
 
             var json = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            _logger.LogInformation("TheIntroDB response for {Url}: {JsonSnippet}", url, json.Length > 200 ? json.Substring(0, 200) + "..." : json);
+            _logger.LogDebug("IntroHater response for {Url}: {Json}", url, json);
 
-            return JsonSerializer.Deserialize<TheIntroDbMediaResponse>(json, JsonOptions);
+            return JsonSerializer.Deserialize<IntroHaterSegment[]>(json, JsonOptions);
         }
     }
 
     private async Task<HttpResponseMessage?> SendRequestAsync(
         string url,
         string? apiKey,
-        AuthHeaderMode authHeaderMode,
-        CancellationToken cancellationToken,
-        string? cookie = null,
-        string? userAgentOverride = null)
+        CancellationToken cancellationToken)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
-            var token = apiKey.Trim();
-            if (authHeaderMode == AuthHeaderMode.XApiKey)
-            {
-                request.Headers.TryAddWithoutValidation("X-API-Key", token);
-            }
-            else
-            {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
+            request.Headers.TryAddWithoutValidation("X-API-Key", apiKey.Trim());
         }
 
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
- 
-        var ua = !string.IsNullOrWhiteSpace(userAgentOverride) ? userAgentOverride : "Jellyfin.Plugin.IntroDbSkip/1.6.3.0";
-        request.Headers.TryAddWithoutValidation("User-Agent", ua);
- 
-        if (!string.IsNullOrWhiteSpace(cookie))
-        {
-            request.Headers.TryAddWithoutValidation("Cookie", cookie);
-        }
- 
+        request.Headers.TryAddWithoutValidation("User-Agent", "Jellyfin.Plugin.IntroDbSkip/1.0.0.0");
+
         return await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
     }
 
@@ -170,22 +140,6 @@ public class IntroDbClient
             url = "https://" + url;
         }
 
-        if (url.Contains("introdb.app/docs", StringComparison.OrdinalIgnoreCase))
-        {
-            return "https://api.introdb.app";
-        }
-
-        if (url.Contains("theintrodb.org/docs", StringComparison.OrdinalIgnoreCase))
-        {
-            return defaultUrl ?? "https://api.theintrodb.org/v2";
-        }
-
         return url;
-    }
-
-    private enum AuthHeaderMode
-    {
-        XApiKey,
-        Bearer
     }
 }
