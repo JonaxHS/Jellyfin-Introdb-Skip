@@ -166,27 +166,25 @@ public class EpisodeIntroSyncService
 
     private (string? ImdbId, int? TmdbId) ResolveMediaIds(Episode episode)
     {
-        var episodeImdb = episode.GetProviderId(MetadataProvider.Imdb);
-        var episodeTmdbStr = episode.GetProviderId(MetadataProvider.Tmdb);
-        int.TryParse(episodeTmdbStr, out var episodeTmdbParsed);
-        int? episodeTmdb = episodeTmdbParsed > 0 ? episodeTmdbParsed : null;
-
-        if (!string.IsNullOrWhiteSpace(episodeImdb) && episodeTmdb.HasValue)
-        {
-            return (episodeImdb, episodeTmdb);
-        }
-
         var series = episode.Series ?? _libraryManager.GetItemById(episode.SeriesId) as Series;
         if (series is null)
         {
-            _logger.LogWarning("Could not resolve series for episode {EpisodeId}", episode.Id);
+            _logger.LogWarning("Could not resolve series for episode {SeriesName} ({EpisodeId})", episode.SeriesName, episode.Id);
+            
+            // Fallback to episode IDs if series is missing (better than nothing)
+            var episodeImdb = episode.GetProviderId(MetadataProvider.Imdb);
+            var episodeTmdbStr = episode.GetProviderId(MetadataProvider.Tmdb);
+            int.TryParse(episodeTmdbStr, out var episodeTmdbParsed);
+            int? episodeTmdb = episodeTmdbParsed > 0 ? episodeTmdbParsed : null;
             return (episodeImdb, episodeTmdb);
         }
 
-        var imdbId = !string.IsNullOrWhiteSpace(episodeImdb) ? episodeImdb : series.GetProviderId(MetadataProvider.Imdb);
-        var tmdbId = episodeTmdb ?? (int.TryParse(series.GetProviderId(MetadataProvider.Tmdb), out var sTmdb) ? sTmdb : (int?)null);
+        var seriesImdb = series.GetProviderId(MetadataProvider.Imdb);
+        var seriesTmdbStr = series.GetProviderId(MetadataProvider.Tmdb);
+        int.TryParse(seriesTmdbStr, out var seriesTmdbParsed);
+        int? seriesTmdb = seriesTmdbParsed > 0 ? seriesTmdbParsed : null;
 
-        return (imdbId, tmdbId);
+        return (seriesImdb, seriesTmdb);
     }
 
     private static (int StartMs, int EndMs)? NormalizeIntroHaterSegment(IntroHaterSegment? segment)

@@ -8,12 +8,12 @@
     "category": "General",
     "versions": [
       {
-        "version": "2.0.0.0",
-        "changelog": "V2 Release - New providers, fixed GUID and versioning.",
+        "version": "2.0.1.0",
+        "changelog": "V2.0.1 - Fixed IMDb ID resolution (Sync now uses Series ID instead of episode ID).",
         "targetAbi": "10.0.0.0",
         "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
-        "checksum": "c82c35c6ff9db6714d78c0dfbfd2a3a2",
-        "timestamp": "2026-04-05T14:21:00Z"
+        "checksum": "4dedcf1c42d970d45d0e4853071819de",
+        "timestamp": "2026-04-05T14:40:00Z"
       }
     ]
   }
