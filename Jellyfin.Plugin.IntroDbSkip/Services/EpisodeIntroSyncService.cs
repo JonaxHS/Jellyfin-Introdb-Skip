@@ -56,19 +56,11 @@ public class EpisodeIntroSyncService
             return null;
         }
 
-        if (!config.OverwriteExistingMarkers)
-        {
-            var existingMarker = _store.Get(episode.Id);
-            if (existingMarker is not null)
-            {
-                return existingMarker;
-            }
-        }
-
         var season = episode.ParentIndexNumber ?? 0;
         var episodeNumber = episode.IndexNumber ?? 0;
         if (season <= 0 || episodeNumber <= 0)
         {
+            _store.Remove(episode.Id);
             _logger.LogDebug("Episode {SeriesName} S{Season:00}E{Episode:00} has invalid numbers. Skipping marker sync.", episode.SeriesName, season, episodeNumber);
             return null;
         }
@@ -76,9 +68,33 @@ public class EpisodeIntroSyncService
         var (imdbId, tmdbId) = ResolveMediaIds(episode);
         if (string.IsNullOrWhiteSpace(imdbId))
         {
+            _store.Remove(episode.Id);
             _logger.LogWarning("No se encontró IMDb ID para {SeriesName} S{Season:00}E{Episode:00}. Imposible buscar intros.", 
                 episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
             return null;
+        }
+
+        if (!config.OverwriteExistingMarkers)
+        {
+            var existingMarker = _store.Get(episode.Id);
+            if (existingMarker is not null)
+            {
+                if (IsMarkerForEpisode(existingMarker, imdbId, season, episodeNumber))
+                {
+                    return existingMarker;
+                }
+
+                _logger.LogWarning(
+                    "Discarding stale cached marker for item {ItemId}. Cached={CachedImdb} S{CachedSeason:00}E{CachedEpisode:00}, Current={CurrentImdb} S{CurrentSeason:00}E{CurrentEpisode:00}",
+                    episode.Id,
+                    existingMarker.ImdbId,
+                    existingMarker.Season,
+                    existingMarker.Episode,
+                    imdbId,
+                    season,
+                    episodeNumber);
+                _store.Remove(episode.Id);
+            }
         }
 
         _logger.LogInformation("Buscando intros para {SeriesName} S{Season:00}E{Episode:00} (IMDb: {ImdbId})", 
@@ -97,9 +113,9 @@ public class EpisodeIntroSyncService
                     .GetIntroDbSegmentsAsync(config.IntroDbBaseUrl, config.IntroDbApiKey, imdbId, season, episodeNumber, cancellationToken)
                     .ConfigureAwait(false);
 
-                introSegment = NormalizeIntroDbSegment(response?.Intro, config.MinimumConfidence);
-                recapSegment = NormalizeIntroDbSegment(response?.Recap, config.MinimumConfidence);
-                var introDbCredits = NormalizeIntroDbSegment(response?.Outro, config.MinimumConfidence);
+                introSegment = NormalizeIntroDbSegment(response?.Intro);
+                recapSegment = NormalizeIntroDbSegment(response?.Recap);
+                var introDbCredits = NormalizeIntroDbSegment(response?.Outro);
                 if (introDbCredits is not null)
                 {
                     creditsSegment = (introDbCredits.Value.StartMs, introDbCredits.Value.EndMs);
@@ -117,7 +133,8 @@ public class EpisodeIntroSyncService
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(imdbId) && (introSegment is null || recapSegment is null || creditsSegment is null))
+        // If intro was already found in IntroDB, do not query IntroHater.
+        if (!string.IsNullOrWhiteSpace(imdbId) && introSegment is null)
         {
             try
             {
@@ -156,6 +173,7 @@ public class EpisodeIntroSyncService
 
         if (introSegment is null && recapSegment is null && creditsSegment is null)
         {
+            _store.Remove(episode.Id);
             _logger.LogInformation("No se encontraron intros en ninguna fuente para {SeriesName} S{Season:00}E{Episode:00}", 
                 episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
             return null;
@@ -229,9 +247,9 @@ public class EpisodeIntroSyncService
         return (startMs, endMs);
     }
 
-    private static (int StartMs, int EndMs)? NormalizeIntroDbSegment(SegmentInfo? segment, double minimumConfidence)
+    private static (int StartMs, int EndMs)? NormalizeIntroDbSegment(SegmentInfo? segment)
     {
-        if (segment is null || segment.Confidence < minimumConfidence)
+        if (segment is null)
         {
             return null;
         }
@@ -249,5 +267,12 @@ public class EpisodeIntroSyncService
         }
 
         return (startMs, endMs);
+    }
+
+    private static bool IsMarkerForEpisode(CachedIntroMarker marker, string imdbId, int season, int episode)
+    {
+        return marker.Season == season
+               && marker.Episode == episode
+               && string.Equals(marker.ImdbId, imdbId, StringComparison.OrdinalIgnoreCase);
     }
 }

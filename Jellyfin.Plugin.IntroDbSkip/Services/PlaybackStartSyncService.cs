@@ -27,7 +27,7 @@ public class PlaybackStartSyncService : IHostedService
     private readonly IMediaSegmentManager _mediaSegmentManager;
     private readonly EpisodeIntroSyncService _episodeIntroSyncService;
     private readonly ILogger<PlaybackStartSyncService> _logger;
-    private readonly ConcurrentDictionary<string, (string SessionId, long StartTicks, long EndTicks)> _pendingAndroidSkips = new();
+    private readonly ConcurrentDictionary<string, (string SessionId, Guid ItemId, long StartTicks, long EndTicks)> _pendingAndroidSkips = new();
     private readonly ConcurrentDictionary<string, byte> _androidSeekInFlight = new();
 
     /// <summary>
@@ -69,6 +69,13 @@ public class PlaybackStartSyncService : IHostedService
 
     private void SessionManagerOnPlaybackStart(object? sender, PlaybackProgressEventArgs e)
     {
+        if (!string.IsNullOrWhiteSpace(e.PlaySessionId))
+        {
+            // Always reset state for the incoming play session to avoid carrying intro windows between episodes.
+            _pendingAndroidSkips.TryRemove(e.PlaySessionId, out _);
+            _androidSeekInFlight.TryRemove(e.PlaySessionId, out _);
+        }
+
         if (e.Session?.Id is not null)
         {
             var sessionId = e.Session.Id;
@@ -106,20 +113,30 @@ public class PlaybackStartSyncService : IHostedService
 
                 if (Plugin.Instance.PluginConfiguration.AndroidExoAutoSkipFallback && IsAndroidClient(e))
                 {
+                    var playbackSessionId = e.Session?.Id;
                     CachedIntroMarker? marker = await _episodeIntroSyncService
                         .GetOrFetchMarkerAsync(episode, CancellationToken.None)
                         .ConfigureAwait(false);
 
-                    if (marker is not null && marker.EndMs > marker.StartMs && !string.IsNullOrWhiteSpace(e.PlaySessionId))
+                    if (marker is not null
+                        && marker.EndMs > marker.StartMs
+                        && !string.IsNullOrWhiteSpace(e.PlaySessionId)
+                        && !string.IsNullOrWhiteSpace(playbackSessionId))
                     {
                         _pendingAndroidSkips[e.PlaySessionId] =
-                            (e.Session.Id, marker.StartMs * TimeSpan.TicksPerMillisecond, marker.EndMs * TimeSpan.TicksPerMillisecond);
+                            (playbackSessionId, episode.Id, marker.StartMs * TimeSpan.TicksPerMillisecond, marker.EndMs * TimeSpan.TicksPerMillisecond);
 
                         _logger.LogDebug(
                             "Prepared Android Exo fallback window for playSession {PlaySessionId}: {StartMs}ms-{EndMs}ms",
                             e.PlaySessionId,
                             marker.StartMs,
                             marker.EndMs);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(e.PlaySessionId))
+                    {
+                        // Ensure no stale fallback remains when current episode has no valid marker.
+                        _pendingAndroidSkips.TryRemove(e.PlaySessionId, out _);
+                        _androidSeekInFlight.TryRemove(e.PlaySessionId, out _);
                     }
                 }
             }
@@ -183,6 +200,18 @@ public class PlaybackStartSyncService : IHostedService
         if (!_pendingAndroidSkips.TryGetValue(e.PlaySessionId, out var marker))
         {
             // If not prepared yet, we don't try to sync here to avoid blocking progress handling
+            return;
+        }
+
+        if (e.Item?.Id is Guid itemId && itemId != Guid.Empty && itemId != marker.ItemId)
+        {
+            _logger.LogDebug(
+                "Discarding stale Android fallback marker for playSession {PlaySessionId}: marker item {MarkerItemId} does not match current item {CurrentItemId}",
+                e.PlaySessionId,
+                marker.ItemId,
+                itemId);
+            _pendingAndroidSkips.TryRemove(e.PlaySessionId, out _);
+            _androidSeekInFlight.TryRemove(e.PlaySessionId, out _);
             return;
         }
 

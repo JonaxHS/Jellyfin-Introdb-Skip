@@ -43,18 +43,6 @@
                         <div class="fieldDescription">Opcional: Tu clave para IntroDB (X-API-Key).</div>
                     </div>
 
-                    <div class="inputContainer">
-                        <label class="inputLabel" for="SyncIntervalHours">Intervalo de sincronización (Horas)</label>
-                        <input id="SyncIntervalHours" name="SyncIntervalHours" type="number" is="emby-input" label="Intervalo (h)" min="1" max="168" />
-                        <div class="fieldDescription">Frecuencia con la que se buscan nuevos intros en segundo plano.</div>
-                    </div>
-
-                    <div class="inputContainer">
-                        <label class="inputLabel" for="MinimumConfidence">Confianza mínima (0.0 a 1.0)</label>
-                        <input id="MinimumConfidence" name="MinimumConfidence" type="number" is="emby-input" label="Confianza" min="0" max="1" step="0.05" />
-                        <div class="fieldDescription">Ignorar marcadores con puntuación baja (Recomendado: 0.75).</div>
-                    </div>
-
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
                             <input id="OverwriteExistingMarkers" name="OverwriteExistingMarkers" type="checkbox" is="emby-checkbox" />
@@ -100,8 +88,6 @@
                         document.querySelector('#IntroDbBaseUrl').value = config.IntroDbBaseUrl || 'https://api.introdb.app';
                         document.querySelector('#IntroDbApiKey').value = config.IntroDbApiKey || '';
                         document.querySelector('#IntroHaterBaseUrl').value = config.IntroHaterBaseUrl || 'https://introhater.com';
-                        document.querySelector('#SyncIntervalHours').value = config.SyncIntervalHours || 24;
-                        document.querySelector('#MinimumConfidence').value = config.MinimumConfidence || 0.75;
                         document.querySelector('#Enabled').checked = config.Enabled !== false;
                         document.querySelector('#SyncOnPlaybackStart').checked = config.SyncOnPlaybackStart !== false;
                         document.querySelector('#AndroidExoAutoSkipFallback').checked = config.AndroidExoAutoSkipFallback !== false;
@@ -117,8 +103,6 @@
                         config.IntroDbBaseUrl = document.querySelector('#IntroDbBaseUrl').value;
                         config.IntroDbApiKey = document.querySelector('#IntroDbApiKey').value;
                         config.IntroHaterBaseUrl = document.querySelector('#IntroHaterBaseUrl').value;
-                        config.SyncIntervalHours = parseInt(document.querySelector('#SyncIntervalHours').value, 10) || 24;
-                        config.MinimumConfidence = parseFloat(document.querySelector('#MinimumConfidence').value) || 0.75;
                         config.Enabled = document.querySelector('#Enabled').checked;
                         config.SyncOnPlaybackStart = document.querySelector('#SyncOnPlaybackStart').checked;
                         config.AndroidExoAutoSkipFallback = document.querySelector('#AndroidExoAutoSkipFallback').checked;

@@ -15,8 +15,6 @@ public class PluginConfiguration : BasePluginConfiguration
         IntroDbBaseUrl = "https://api.introdb.app";
         IntroDbApiKey = string.Empty;
         IntroHaterBaseUrl = "https://introhater.com";
-        SyncIntervalHours = 24;
-        MinimumConfidence = 0.75;
         OverwriteExistingMarkers = false;
         SyncOnPlaybackStart = true;
         AndroidExoAutoSkipFallback = true;
@@ -38,16 +36,6 @@ public class PluginConfiguration : BasePluginConfiguration
     /// URL base de la API de IntroHater.
     /// </summary>
     public string IntroHaterBaseUrl { get; set; }
-
-    /// <summary>
-    /// Frecuencia de sincronización (en horas).
-    /// </summary>
-    public int SyncIntervalHours { get; set; }
-
-    /// <summary>
-    /// Confianza mínima aceptada de los marcadores.
-    /// </summary>
-    public double MinimumConfidence { get; set; }
 
     /// <summary>
     /// Indica si se deben sobrescribir los marcadores locales existentes.
