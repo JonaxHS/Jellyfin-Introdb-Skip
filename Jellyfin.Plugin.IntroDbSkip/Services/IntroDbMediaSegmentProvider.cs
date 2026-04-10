@@ -48,6 +48,12 @@ public class IntroDbMediaSegmentProvider : IMediaSegmentProvider, IHasOrder
     /// <inheritdoc />
     public async Task<IReadOnlyList<MediaSegmentDto>> GetMediaSegments(MediaSegmentGenerationRequest request, CancellationToken cancellationToken)
     {
+        if (request.ItemId == Guid.Empty)
+        {
+            _logger.LogWarning("IntroDB Skip provider received an empty ItemId. Skipping segment generation to avoid stale marker reuse.");
+            return [];
+        }
+
         var item = _libraryManager.GetItemById(request.ItemId);
         if (item is not Episode episode)
         {

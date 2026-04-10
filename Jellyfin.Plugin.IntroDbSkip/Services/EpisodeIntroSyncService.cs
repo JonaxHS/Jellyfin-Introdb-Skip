@@ -56,11 +56,23 @@ public class EpisodeIntroSyncService
             return null;
         }
 
+        var canUseStore = episode.Id != Guid.Empty;
+        if (!canUseStore)
+        {
+            _logger.LogWarning("Episode {SeriesName} S{Season:00}E{Episode:00} has empty ItemId. Marker cache will be bypassed.",
+                episode.SeriesName,
+                episode.ParentIndexNumber,
+                episode.IndexNumber);
+        }
+
         var season = episode.ParentIndexNumber ?? 0;
         var episodeNumber = episode.IndexNumber ?? 0;
         if (season <= 0 || episodeNumber <= 0)
         {
-            _store.Remove(episode.Id);
+            if (canUseStore)
+            {
+                _store.Remove(episode.Id);
+            }
             _logger.LogDebug("Episode {SeriesName} S{Season:00}E{Episode:00} has invalid numbers. Skipping marker sync.", episode.SeriesName, season, episodeNumber);
             return null;
         }
@@ -68,13 +80,16 @@ public class EpisodeIntroSyncService
         var (imdbId, tmdbId) = ResolveMediaIds(episode);
         if (string.IsNullOrWhiteSpace(imdbId))
         {
-            _store.Remove(episode.Id);
+            if (canUseStore)
+            {
+                _store.Remove(episode.Id);
+            }
             _logger.LogWarning("No se encontró IMDb ID para {SeriesName} S{Season:00}E{Episode:00}. Imposible buscar intros.", 
                 episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
             return null;
         }
 
-        if (!config.OverwriteExistingMarkers)
+        if (!config.OverwriteExistingMarkers && canUseStore)
         {
             var existingMarker = _store.Get(episode.Id);
             if (existingMarker is not null)
@@ -173,7 +188,10 @@ public class EpisodeIntroSyncService
 
         if (introSegment is null && recapSegment is null && creditsSegment is null)
         {
-            _store.Remove(episode.Id);
+            if (canUseStore)
+            {
+                _store.Remove(episode.Id);
+            }
             _logger.LogInformation("No se encontraron intros en ninguna fuente para {SeriesName} S{Season:00}E{Episode:00}", 
                 episode.SeriesName, episode.ParentIndexNumber, episode.IndexNumber);
             return null;
@@ -195,7 +213,10 @@ public class EpisodeIntroSyncService
             SyncedAt = DateTimeOffset.UtcNow
         };
 
-        _store.Upsert(marker);
+        if (canUseStore)
+        {
+            _store.Upsert(marker);
+        }
         _logger.LogDebug("Stored marker(s) for {Series} S{Season:00}E{Episode:00} intro={HasIntro} recap={HasRecap} credits={HasCredits}",
             episode.SeriesName,
             season,
