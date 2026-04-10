@@ -11,7 +11,7 @@
         "version": "2.3.4.0",
         "changelog": "V2.3.4 - Prevented stale intro reuse across different series by bypassing empty-item cache paths and tightening on-demand segment guards.",
         "targetAbi": "10.0.0.0",
-        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/main/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
+        "sourceUrl": "https://raw.githubusercontent.com/JonaxHS/Jellyfin-Introdb-Skip/8aa436a/Jellyfin.Plugin.IntroDbSkip/Jellyfin.Plugin.IntroDbSkip.zip",
         "checksum": "1dc1466165470cb3b81331ee973a33b8",
         "timestamp": "2026-04-10T17:59:29Z"
       }
